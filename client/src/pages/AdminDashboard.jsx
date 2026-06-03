@@ -327,7 +327,7 @@ function StaffManager() {
 
 // ── Main Dashboard ───────────────────────────────────────────
 // ── Create Business Form (For Admins who don't have a business yet) ──
-function CreateBusinessForm({ onCreated }) {
+function CreateBusinessForm({ onCreated, onCancel }) {
   const [form, setForm] = useState({
     name: '',
     category: 'clinic',
@@ -343,6 +343,29 @@ function CreateBusinessForm({ onCreated }) {
     try {
       const { data } = await api.post('/businesses', form);
       toast.success(`Business "${data.name}" created successfully!`);
+      
+      // Auto-create default slots for today
+      try {
+        const today = new Date().toISOString().split('T')[0];
+        await api.post('/slots', {
+          business_id: data.id,
+          date: today,
+          start_time: '09:00',
+          end_time: '12:00',
+          max_capacity: 20
+        });
+        await api.post('/slots', {
+          business_id: data.id,
+          date: today,
+          start_time: '13:00',
+          end_time: '17:00',
+          max_capacity: 20
+        });
+        toast.success('Default time slots created for today!');
+      } catch (slotErr) {
+        console.error('Failed to auto-create slots:', slotErr);
+      }
+
       onCreated(data);
     } catch (err) {
       toast.error(err.response?.data?.error || 'Failed to create business');
@@ -420,10 +443,90 @@ function CreateBusinessForm({ onCreated }) {
           />
         </div>
 
-        <button type="submit" disabled={loading} className="btn-primary w-full mt-2">
-          {loading ? 'Creating...' : 'Create Business'}
-        </button>
+        <div className="flex gap-3 mt-2">
+          {onCancel && (
+            <button type="button" onClick={onCancel} className="btn-secondary flex-1">
+              Cancel
+            </button>
+          )}
+          <button type="submit" disabled={loading} className="btn-primary flex-1">
+            {loading ? 'Creating...' : 'Create Business'}
+          </button>
+        </div>
       </form>
+    </div>
+  );
+}
+
+// ── Business Selector Dropdown ───────────────────────────────
+function BusinessSelector({ businesses, activeBiz, setActiveBiz, onAddBusiness }) {
+  const [isOpen, setIsOpen] = useState(false);
+  const dropdownRef = useRef(null);
+
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsOpen(false);
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  return (
+    <div className="flex gap-3 items-end mb-6">
+      <div className="flex-1 max-w-xs relative" ref={dropdownRef}>
+        <label className="block text-sm text-slate-400 mb-1.5 font-medium">Business</label>
+        
+        <button
+          type="button"
+          onClick={() => setIsOpen(!isOpen)}
+          className="input flex items-center justify-between w-full text-left bg-surface-900 border border-slate-700/60 rounded-xl px-4 py-2.5 text-slate-200 hover:border-brand-500/50 transition-all font-medium"
+        >
+          <span>{activeBiz?.name || 'Select Business'}</span>
+          <svg
+            className={`w-4 h-4 text-slate-400 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+          </svg>
+        </button>
+
+        {isOpen && (
+          <div className="absolute left-0 right-0 mt-2 bg-surface-950 border border-slate-700/60 rounded-xl shadow-2xl z-50 overflow-hidden py-1 animate-slide-up">
+            {businesses.map((b) => (
+              <button
+                key={b.id}
+                type="button"
+                onClick={() => {
+                  setActiveBiz(b);
+                  setIsOpen(false);
+                }}
+                className={`w-full text-left px-4 py-2.5 text-sm transition-colors flex items-center justify-between
+                  ${activeBiz?.id === b.id 
+                    ? 'bg-brand-600/20 text-brand-300 font-semibold' 
+                    : 'text-slate-300 hover:bg-slate-800/50 hover:text-white'}`}
+              >
+                <span>{b.name}</span>
+                {activeBiz?.id === b.id && (
+                  <svg className="w-4 h-4 text-brand-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M5 13l4 4L19 7" />
+                  </svg>
+                )}
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
+      
+      <button
+        onClick={onAddBusiness}
+        className="btn-secondary py-2.5 px-4 h-[44px] flex items-center justify-center text-sm font-medium transition-all rounded-xl"
+      >
+        + Add Business
+      </button>
     </div>
   );
 }
@@ -436,6 +539,7 @@ export default function AdminDashboard() {
   const [activeSlot, setActiveSlot] = useState(null);
   const [slots, setSlots]           = useState([]);
   const [tab, setTab]               = useState('queue');
+  const [showCreateBiz, setShowCreateBiz] = useState(false);
 
   const { queue, connected } = useSSE(activeBiz?.id);
   const isAdmin = user?.role === 'admin';
@@ -466,8 +570,9 @@ export default function AdminDashboard() {
   }, [activeBiz]);
 
   function handleBusinessCreated(newBiz) {
-    setBusinesses([newBiz]);
+    setBusinesses(prev => [...prev, newBiz]);
     setActiveBiz(newBiz);
+    setShowCreateBiz(false);
   }
 
   // Admin sees all tabs; staff sees queue + checkin only
@@ -477,7 +582,7 @@ export default function AdminDashboard() {
 
   const TAB_LABELS = { queue: 'Queue', analytics: 'Analytics', slots: 'Slots', checkin: 'Check-in', staff: '👤 Staff' };
 
-  if (businesses.length === 0) {
+  if (businesses.length === 0 || showCreateBiz) {
     return (
       <div className="max-w-3xl mx-auto px-4 py-10 animate-fade-in">
         <div className="flex items-center justify-between mb-8">
@@ -493,7 +598,10 @@ export default function AdminDashboard() {
         </div>
         
         {isAdmin ? (
-          <CreateBusinessForm onCreated={handleBusinessCreated} />
+          <CreateBusinessForm 
+            onCreated={handleBusinessCreated} 
+            onCancel={businesses.length > 0 ? () => setShowCreateBiz(false) : null} 
+          />
         ) : (
           <div className="card text-center py-10">
             <p className="text-slate-400 font-medium">No business associated with this staff account.</p>
@@ -526,14 +634,13 @@ export default function AdminDashboard() {
       </div>
 
       {/* Business selector */}
-      {businesses.length > 1 && isAdmin && (
-        <div className="mb-6">
-          <label className="block text-sm text-slate-400 mb-1.5">Business</label>
-          <select className="input max-w-xs" value={activeBiz?.id || ''}
-            onChange={e => setActiveBiz(businesses.find(b => b.id === e.target.value))}>
-            {businesses.map(b => <option key={b.id} value={b.id}>{b.name}</option>)}
-          </select>
-        </div>
+      {isAdmin && (
+        <BusinessSelector
+          businesses={businesses}
+          activeBiz={activeBiz}
+          setActiveBiz={setActiveBiz}
+          onAddBusiness={() => setShowCreateBiz(true)}
+        />
       )}
 
       {/* Tabs */}

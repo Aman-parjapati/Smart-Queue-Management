@@ -91,7 +91,12 @@ export default function BookSlot() {
       {/* Slots */}
       <h2 className="font-display font-semibold text-lg mb-4">Available Time Slots</h2>
       {slots.length === 0 ? (
-        <div className="card text-center text-slate-400 py-12">No slots available for this date.</div>
+        <div className="card text-center text-slate-400 py-12 px-6">
+          <p className="font-medium text-slate-300 mb-2">No slots available for this date.</p>
+          <p className="text-slate-500 text-xs max-w-sm mx-auto leading-relaxed">
+            If you are the business administrator, please log in to the Staff Portal and go to the **Slots** tab to create time slots for this business.
+          </p>
+        </div>
       ) : (
         <div className="grid sm:grid-cols-2 gap-3 mb-8">
           {slots.map(slot => (
