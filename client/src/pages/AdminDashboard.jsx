@@ -575,10 +575,10 @@ export default function AdminDashboard() {
     setShowCreateBiz(false);
   }
 
-  // Admin sees all tabs; staff sees queue + checkin only
+  // Admin sees all tabs; staff sees queue + slots + checkin
   const TABS = isAdmin
     ? ['queue', 'analytics', 'slots', 'checkin', 'staff']
-    : ['queue', 'checkin'];
+    : ['queue', 'slots', 'checkin'];
 
   const TAB_LABELS = { queue: 'Queue', analytics: 'Analytics', slots: 'Slots', checkin: 'Check-in', staff: '👤 Staff' };
 
