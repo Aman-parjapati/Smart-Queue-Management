@@ -326,6 +326,109 @@ function StaffManager() {
 }
 
 // ── Main Dashboard ───────────────────────────────────────────
+// ── Create Business Form (For Admins who don't have a business yet) ──
+function CreateBusinessForm({ onCreated }) {
+  const [form, setForm] = useState({
+    name: '',
+    category: 'clinic',
+    address: '',
+    branch: '',
+    avg_service_time: 15
+  });
+  const [loading, setLoading] = useState(false);
+
+  async function handleSubmit(e) {
+    e.preventDefault();
+    setLoading(true);
+    try {
+      const { data } = await api.post('/businesses', form);
+      toast.success(`Business "${data.name}" created successfully!`);
+      onCreated(data);
+    } catch (err) {
+      toast.error(err.response?.data?.error || 'Failed to create business');
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  return (
+    <div className="card max-w-lg mx-auto">
+      <h3 className="font-display font-semibold text-xl mb-2 text-white">Create Your Business</h3>
+      <p className="text-slate-400 text-sm mb-6">You must create a business before you can manage slots, queues, or staff.</p>
+      
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <div>
+          <label className="block text-sm text-slate-300 mb-1.5">Business Name</label>
+          <input
+            type="text"
+            required
+            className="input"
+            placeholder="e.g. City Dental Clinic"
+            value={form.name}
+            onChange={e => setForm(p => ({ ...p, name: e.target.value }))}
+          />
+        </div>
+
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <label className="block text-sm text-slate-300 mb-1.5">Category</label>
+            <select
+              className="input"
+              value={form.category}
+              onChange={e => setForm(p => ({ ...p, category: e.target.value }))}
+            >
+              <option value="clinic">🏥 Clinic</option>
+              <option value="salon">✂️ Salon</option>
+              <option value="hospital">🏨 Hospital</option>
+              <option value="government">🏛️ Government</option>
+              <option value="bank">🏦 Bank</option>
+              <option value="pharmacy">💊 Pharmacy</option>
+            </select>
+          </div>
+          <div>
+            <label className="block text-sm text-slate-300 mb-1.5">Branch</label>
+            <input
+              type="text"
+              className="input"
+              placeholder="e.g. Downtown"
+              value={form.branch}
+              onChange={e => setForm(p => ({ ...p, branch: e.target.value }))}
+            />
+          </div>
+        </div>
+
+        <div>
+          <label className="block text-sm text-slate-300 mb-1.5">Address</label>
+          <input
+            type="text"
+            className="input"
+            placeholder="e.g. 123 Main St, Sector 4"
+            value={form.address}
+            onChange={e => setForm(p => ({ ...p, address: e.target.value }))}
+          />
+        </div>
+
+        <div>
+          <label className="block text-sm text-slate-300 mb-1.5">Avg Service Time (mins)</label>
+          <input
+            type="number"
+            required
+            min="1"
+            className="input"
+            value={form.avg_service_time}
+            onChange={e => setForm(p => ({ ...p, avg_service_time: parseInt(e.target.value) }))}
+          />
+        </div>
+
+        <button type="submit" disabled={loading} className="btn-primary w-full mt-2">
+          {loading ? 'Creating...' : 'Create Business'}
+        </button>
+      </form>
+    </div>
+  );
+}
+
+// ── Main Dashboard ───────────────────────────────────────────
 export default function AdminDashboard() {
   const { user }  = useAuth();
   const [businesses, setBusinesses] = useState([]);
@@ -339,12 +442,15 @@ export default function AdminDashboard() {
 
   useEffect(() => {
     api.get('/businesses').then(r => {
-      setBusinesses(r.data);
-      if (r.data.length > 0) {
-        const initialBiz = user?.role === 'staff'
-          ? r.data.find(b => b.id === user.business_id)
-          : r.data[0];
-        setActiveBiz(initialBiz || r.data[0]);
+      const filtered = user?.role === 'admin'
+        ? r.data.filter(b => b.owner_id === user.id)
+        : r.data.filter(b => b.id === user.business_id);
+      
+      setBusinesses(filtered);
+      if (filtered.length > 0) {
+        setActiveBiz(filtered[0]);
+      } else {
+        setActiveBiz(null);
       }
     });
   }, [user]);
@@ -359,12 +465,44 @@ export default function AdminDashboard() {
        });
   }, [activeBiz]);
 
+  function handleBusinessCreated(newBiz) {
+    setBusinesses([newBiz]);
+    setActiveBiz(newBiz);
+  }
+
   // Admin sees all tabs; staff sees queue + checkin only
   const TABS = isAdmin
     ? ['queue', 'analytics', 'slots', 'checkin', 'staff']
     : ['queue', 'checkin'];
 
   const TAB_LABELS = { queue: 'Queue', analytics: 'Analytics', slots: 'Slots', checkin: 'Check-in', staff: '👤 Staff' };
+
+  if (businesses.length === 0) {
+    return (
+      <div className="max-w-3xl mx-auto px-4 py-10 animate-fade-in">
+        <div className="flex items-center justify-between mb-8">
+          <div>
+            <h1 className="font-display text-3xl font-bold">Dashboard</h1>
+            <p className="text-slate-400 text-sm mt-1">
+              {user?.name}
+              <span className={`ml-2 badge ${isAdmin ? 'bg-brand-900/40 text-brand-400' : 'bg-slate-700 text-slate-400'}`}>
+                {user?.role}
+              </span>
+            </p>
+          </div>
+        </div>
+        
+        {isAdmin ? (
+          <CreateBusinessForm onCreated={handleBusinessCreated} />
+        ) : (
+          <div className="card text-center py-10">
+            <p className="text-slate-400 font-medium">No business associated with this staff account.</p>
+            <p className="text-slate-500 text-sm mt-2">Please contact your administrator to assign you to a business.</p>
+          </div>
+        )}
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-3xl mx-auto px-4 py-10 animate-fade-in">
