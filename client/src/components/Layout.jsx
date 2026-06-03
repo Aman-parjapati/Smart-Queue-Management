@@ -28,6 +28,11 @@ export default function Layout() {
                     Dashboard
                   </Link>
                 )}
+                {user.role === 'customer' && (
+                  <Link to="/bookings" className="text-sm text-slate-300 hover:text-white transition-colors px-3 py-1.5 rounded-lg hover:bg-slate-800">
+                    My Bookings
+                  </Link>
+                )}
                 <span className="text-sm text-slate-400 hidden sm:block">{user.name}</span>
                 <span className={`badge hidden sm:inline-flex ${user.role === 'admin' ? 'bg-brand-900/40 text-brand-400' : user.role === 'staff' ? 'bg-amber-900/40 text-amber-400' : 'bg-slate-700 text-slate-400'}`}>
                   {user.role}

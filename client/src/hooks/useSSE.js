@@ -2,11 +2,11 @@ import { useState, useEffect, useRef } from 'react';
 
 /**
  * Custom hook that connects to the SSE endpoint for a given business
- * and returns live queue state.
+ * and returns live queue state, scoped optionally to a specific slot.
  */
-export function useSSE(businessId) {
+export function useSSE(businessId, slotId = null) {
   const [queue, setQueue]         = useState([]);
-  const [slotId, setSlotId]       = useState(null);
+  const [activeSlotId, setActiveSlotId] = useState(slotId);
   const [connected, setConnected] = useState(false);
   const esRef = useRef(null);
 
@@ -14,7 +14,8 @@ export function useSSE(businessId) {
     if (!businessId) return;
 
     function connect() {
-      const es = new EventSource(`/api/queue/live/${businessId}`);
+      const url = `/api/queue/live/${businessId}` + (slotId ? `?slotId=${slotId}` : '');
+      const es = new EventSource(url);
       esRef.current = es;
 
       es.onopen = () => setConnected(true);
@@ -22,7 +23,7 @@ export function useSSE(businessId) {
       es.onmessage = (event) => {
         try {
           const payload = JSON.parse(event.data);
-          setSlotId(payload.slotId);
+          setActiveSlotId(payload.slotId);
           setQueue(payload.queue || []);
         } catch {/* ignore parse errors */}
       };
@@ -41,7 +42,7 @@ export function useSSE(businessId) {
       esRef.current?.close();
       setConnected(false);
     };
-  }, [businessId]);
+  }, [businessId, slotId]);
 
-  return { queue, slotId, connected };
+  return { queue, slotId: activeSlotId, connected };
 }

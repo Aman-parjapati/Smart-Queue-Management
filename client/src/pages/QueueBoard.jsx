@@ -5,15 +5,27 @@ import api from '../lib/api';
 
 export default function QueueBoard() {
   const { businessId } = useParams();
-  const { queue, connected } = useSSE(businessId);
   const [business, setBusiness] = useState(null);
+  const [slots, setSlots]       = useState([]);
+  const [activeSlot, setActiveSlot] = useState(null);
 
   useEffect(() => {
     api.get(`/businesses/${businessId}`).then(r => setBusiness(r.data)).catch(() => {});
+    
+    // Fetch today's slots for the business
+    const today = new Date().toISOString().split('T')[0];
+    api.get(`/slots/business/${businessId}?date=${today}`)
+       .then(r => {
+         setSlots(r.data);
+         if (r.data.length > 0) setActiveSlot(r.data[0]);
+       })
+       .catch(() => {});
   }, [businessId]);
 
+  const { queue, connected } = useSSE(businessId, activeSlot?.id);
+
   const serving  = queue.filter(b => b.status === 'serving');
-  const waiting  = queue.filter(b => b.status !== 'serving');
+  const waiting  = queue.filter(b => b.status !== 'serving' && b.status !== 'done');
 
   return (
     <div className="min-h-screen bg-surface-950 p-6 md:p-12 animate-fade-in">
@@ -33,6 +45,35 @@ export default function QueueBoard() {
           </span>
         </div>
       </div>
+
+      {/* Slots Selector */}
+      {slots.length > 1 && (
+        <div className="mb-8">
+          <p className="text-slate-400 text-xs font-semibold uppercase tracking-wider mb-3">Time Slots</p>
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+            {slots.map((s, index) => (
+              <button
+                key={s.id}
+                onClick={() => setActiveSlot(s)}
+                className={`px-4 py-3.5 rounded-xl text-left transition-all border flex flex-col justify-between h-[100px]
+                  ${activeSlot?.id === s.id
+                    ? 'bg-brand-600/10 border-brand-500 text-white shadow-lg shadow-brand-600/5'
+                    : 'bg-surface-900 border-slate-800 text-slate-400 hover:text-white hover:border-slate-700'}`}
+              >
+                <span className="text-[10px] uppercase tracking-wider text-slate-500 font-bold">
+                  Slot {index + 1}
+                </span>
+                <span className="font-mono text-sm font-bold text-white leading-none my-1">
+                  {s.start_time.slice(0, 5)} – {s.end_time.slice(0, 5)}
+                </span>
+                <span className="text-[11px] text-slate-400">
+                  {s.booked_count} Booked
+                </span>
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Now Serving */}
       <div className="mb-10">

@@ -14,7 +14,6 @@ async function getQueueState(slotId) {
     .from('bookings')
     .select('id, token_number, status, user_id, users(name)')
     .eq('slot_id', slotId)
-    .not('status', 'eq', 'done')
     .order('token_number', { ascending: true });
 
   if (error) throw error;

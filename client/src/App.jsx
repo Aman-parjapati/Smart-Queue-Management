@@ -8,6 +8,7 @@ import BookSlot       from './pages/BookSlot';
 import MyToken        from './pages/MyToken';
 import AdminDashboard from './pages/AdminDashboard';
 import QueueBoard     from './pages/QueueBoard';
+import MyBookings     from './pages/MyBookings';
 import Layout         from './components/Layout';
 
 function RequireAuth({ children, roles }) {
@@ -39,6 +40,9 @@ export default function App() {
             } />
             <Route path="/token/:bookingId"  element={
               <RequireAuth><MyToken /></RequireAuth>
+            } />
+            <Route path="/bookings"          element={
+              <RequireAuth><MyBookings /></RequireAuth>
             } />
             <Route path="/admin"             element={
               <RequireAuth roles={['admin', 'staff']}><AdminDashboard /></RequireAuth>

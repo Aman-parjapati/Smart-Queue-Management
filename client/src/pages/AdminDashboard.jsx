@@ -108,10 +108,13 @@ function SlotCreator({ businessId, onCreated }) {
 }
 
 // ── Queue Control Panel ──────────────────────────────────────
-function QueueControl({ slotId, queue }) {
+function QueueControl({ slotId, queue, slots = [], activeSlot = null, setActiveSlot = () => {} }) {
   const [loading, setLoading] = useState(false);
   const serving = queue.find(b => b.status === 'serving');
   const next    = queue.find(b => ['pending','arrived'].includes(b.status));
+
+  const activeQueue = queue.filter(b => b.status !== 'done');
+  const completedQueue = queue.filter(b => b.status === 'done');
 
   async function callNext() {
     if (!slotId) return toast.error('No active slot');
@@ -138,19 +141,72 @@ function QueueControl({ slotId, queue }) {
     }
   }
 
+  async function complete(bookingId) {
+    setLoading(true);
+    try {
+      await api.post('/queue/complete', { bookingId, slotId });
+      toast.success('Service completed!');
+    } catch (err) {
+      toast.error(err.response?.data?.error || 'Failed');
+    } finally {
+      setLoading(false);
+    }
+  }
+
   return (
     <div className="card mb-6">
       <div className="flex items-center justify-between mb-4">
         <h3 className="font-display font-semibold text-lg">Queue Control</h3>
-        <span className="text-slate-400 text-sm">{queue.length} in queue</span>
+        <span className="text-slate-400 text-sm">{activeQueue.length} in queue</span>
       </div>
 
+      {slots.length > 1 && (
+        <div className="mb-5 bg-surface-950 p-3.5 rounded-xl border border-slate-800/60">
+          <label className="block text-xs text-slate-400 mb-3 font-semibold uppercase tracking-wider">Select Time Slot to Manage</label>
+          <div className="grid grid-cols-2 gap-3">
+            {slots.map((s, index) => (
+              <button
+                key={s.id}
+                type="button"
+                onClick={() => setActiveSlot(s)}
+                className={`px-4 py-3 rounded-xl text-left transition-all border flex flex-col justify-between h-[90px]
+                  ${activeSlot?.id === s.id
+                    ? 'bg-brand-600/10 border-brand-500 text-white shadow-lg shadow-brand-600/5'
+                    : 'bg-slate-900 border-slate-800 text-slate-400 hover:text-white hover:border-slate-700'}`}
+              >
+                <span className="text-[10px] uppercase tracking-wider text-slate-500 font-bold">
+                  Slot {index + 1}
+                </span>
+                <span className="font-mono text-sm font-bold text-white leading-none my-1">
+                  {s.start_time.slice(0, 5)} – {s.end_time.slice(0, 5)}
+                </span>
+                <span className="text-[11px] text-slate-400">
+                  {s.booked_count} Booked
+                </span>
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
       {serving && (
-        <div className="bg-emerald-900/20 border border-emerald-700/40 rounded-xl p-4 mb-4">
-          <p className="text-emerald-400 text-xs uppercase tracking-widest mb-1">Now Serving</p>
-          <p className="font-mono text-2xl font-bold text-white">
-            #{String(serving.token_number).padStart(3,'0')}
-          </p>
+        <div className="bg-emerald-900/20 border border-emerald-700/40 rounded-xl p-4 mb-4 flex items-center justify-between gap-4">
+          <div>
+            <p className="text-emerald-400 text-xs uppercase tracking-widest mb-1">Now Serving</p>
+            <p className="font-mono text-2xl font-bold text-white mb-1">
+              #{String(serving.token_number).padStart(3,'0')}
+            </p>
+            <p className="text-slate-300 text-sm">
+              Customer: <span className="text-white font-medium">{serving.users?.name || '—'}</span>
+            </p>
+          </div>
+          <button
+            onClick={() => complete(serving.id)}
+            disabled={loading}
+            className="btn-primary bg-emerald-600 hover:bg-emerald-500 border-none text-xs py-2 px-3.5 self-center"
+          >
+            {loading ? 'Completing…' : 'Complete'}
+          </button>
         </div>
       )}
 
@@ -160,11 +216,14 @@ function QueueControl({ slotId, queue }) {
 
       {/* Queue list */}
       <div className="space-y-2 max-h-72 overflow-y-auto pr-1">
-        {queue.map((b, i) => (
+        {activeQueue.map((b, i) => (
           <div key={b.id} className="flex items-center justify-between bg-surface-900 rounded-xl px-4 py-2.5">
             <div className="flex items-center gap-3">
               <span className="font-mono font-medium text-white w-12">
                 #{String(b.token_number).padStart(3,'0')}
+              </span>
+              <span className="text-slate-300 text-sm font-medium">
+                {b.users?.name || '—'}
               </span>
               <span className={`badge ${
                 b.status === 'serving'  ? 'bg-emerald-900/40 text-emerald-400' :
@@ -180,10 +239,33 @@ function QueueControl({ slotId, queue }) {
             )}
           </div>
         ))}
-        {queue.length === 0 && (
+        {activeQueue.length === 0 && (
           <p className="text-center text-slate-500 py-4">No active queue</p>
         )}
       </div>
+
+      {/* Completed History */}
+      {completedQueue.length > 0 && (
+        <div className="mt-6 border-t border-slate-800/80 pt-4">
+          <div className="flex items-center justify-between mb-3">
+            <h4 className="text-xs text-slate-400 uppercase tracking-widest font-semibold">Completed History</h4>
+            <span className="badge bg-slate-800 text-slate-400 text-[10px] font-bold px-2 py-0.5">{completedQueue.length} served</span>
+          </div>
+          <div className="space-y-1.5 max-h-44 overflow-y-auto pr-1">
+            {completedQueue.map((b) => (
+              <div key={b.id} className="flex items-center justify-between bg-slate-900/40 rounded-xl px-4 py-2 border border-slate-850">
+                <div className="flex items-center gap-3">
+                  <span className="font-mono text-xs text-slate-500 w-12">#{String(b.token_number).padStart(3, '0')}</span>
+                  <span className="text-slate-300 text-sm font-medium">{b.users?.name || '—'}</span>
+                </div>
+                <span className="text-emerald-400 text-[10px] font-semibold uppercase bg-emerald-950/40 px-2 py-0.5 rounded border border-emerald-900/30">
+                  Served
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -541,7 +623,7 @@ export default function AdminDashboard() {
   const [tab, setTab]               = useState('queue');
   const [showCreateBiz, setShowCreateBiz] = useState(false);
 
-  const { queue, connected } = useSSE(activeBiz?.id);
+  const { queue, connected } = useSSE(activeBiz?.id, activeSlot?.id);
   const isAdmin = user?.role === 'admin';
 
   useEffect(() => {
@@ -654,7 +736,15 @@ export default function AdminDashboard() {
         ))}
       </div>
 
-      {tab === 'queue'     && <QueueControl slotId={activeSlot?.id} queue={queue} />}
+      {tab === 'queue'     && (
+        <QueueControl
+          slotId={activeSlot?.id}
+          queue={queue}
+          slots={slots}
+          activeSlot={activeSlot}
+          setActiveSlot={setActiveSlot}
+        />
+      )}
       {tab === 'analytics' && <AnalyticsPanel businessId={activeBiz?.id} />}
       {tab === 'slots'     && <SlotCreator businessId={activeBiz?.id} onCreated={() => {}} />}
       {tab === 'checkin'   && <QRScanner />}

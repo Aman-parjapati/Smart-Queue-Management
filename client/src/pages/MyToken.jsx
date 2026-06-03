@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import api from '../lib/api';
 import { useSSE } from '../hooks/useSSE';
+import toast from 'react-hot-toast';
 
 const STATUS_CONFIG = {
   pending:  { label: 'Waiting',  color: 'text-yellow-400', bg: 'bg-yellow-900/20 border-yellow-700/40' },
@@ -15,6 +16,15 @@ export default function MyToken() {
   const { bookingId } = useParams();
   const [booking, setBooking] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [copied, setCopied] = useState(false);
+
+  function handleCopy() {
+    if (!booking?.id) return;
+    navigator.clipboard.writeText(booking.id);
+    setCopied(true);
+    toast.success('Booking ID copied!');
+    setTimeout(() => setCopied(false), 2000);
+  }
 
   useEffect(() => {
     api.get(`/bookings/${bookingId}`)
@@ -24,12 +34,14 @@ export default function MyToken() {
 
   // Connect to live queue via SSE
   const businessId = booking?.slots?.businesses?.id || booking?.slot?.business_id;
-  const { queue, connected } = useSSE(businessId);
+  const slotId = booking?.slot_id;
+  const { queue, connected } = useSSE(businessId, slotId);
 
   // Compute my position from live queue
-  const myEntry    = queue.find(b => b.id === bookingId);
-  const position   = myEntry ? queue.indexOf(myEntry) + 1 : null;
-  const nowServing = queue.find(b => b.status === 'serving');
+  const activeQueue = queue.filter(b => b.status !== 'done');
+  const myEntry    = activeQueue.find(b => b.id === bookingId);
+  const position   = myEntry ? activeQueue.indexOf(myEntry) + 1 : null;
+  const nowServing = activeQueue.find(b => b.status === 'serving');
   const waitTokens = myEntry ? (myEntry.token_number - (nowServing?.token_number || 0)) : null;
   const avgTime    = booking?.slots?.businesses?.avg_service_time || 10;
   const waitMins   = waitTokens > 0 ? waitTokens * avgTime : 0;
@@ -123,9 +135,28 @@ export default function MyToken() {
             {booking.slots?.start_time?.slice(0,5)} – {booking.slots?.end_time?.slice(0,5)}
           </span>
         </div>
-        <div className="flex justify-between text-sm mt-2">
+        <div className="flex justify-between items-center text-sm mt-2">
           <span className="text-slate-400">Booking ID</span>
-          <span className="text-slate-500 font-mono text-xs">{booking.id.slice(0,8)}…</span>
+          <div className="flex items-center gap-1.5">
+            <span className="text-slate-500 font-mono text-xs" title={booking.id}>
+              {booking.id.slice(0,8)}…
+            </span>
+            <button
+              onClick={handleCopy}
+              className="text-slate-500 hover:text-white transition-colors p-1 rounded-lg hover:bg-slate-800/40"
+              title="Copy full Booking ID"
+            >
+              {copied ? (
+                <svg className="w-3.5 h-3.5 text-emerald-400 animate-fade-in" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7" />
+                </svg>
+              ) : (
+                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
+                </svg>
+              )}
+            </button>
+          </div>
         </div>
       </div>
     </div>

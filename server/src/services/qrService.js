@@ -5,7 +5,7 @@ const QRCode = require('qrcode');
  * The QR content is a JSON string with bookingId for scanning.
  */
 async function generateQRCode(bookingId) {
-  const payload = JSON.stringify({ bookingId, type: 'smart-queue-checkin' });
+  const payload = bookingId;
   const dataUrl = await QRCode.toDataURL(payload, {
     errorCorrectionLevel: 'H',
     margin: 2,

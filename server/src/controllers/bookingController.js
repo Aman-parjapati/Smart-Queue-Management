@@ -2,6 +2,8 @@ const supabase        = require('../db/supabase');
 const { generateQRCode } = require('../services/qrService');
 const { invalidateCache, getQueueState } = require('../services/queueService');
 const { broadcastQueue } = require('../services/sseService');
+const { sendBookingConfirmation } = require('../services/twilioService');
+const { sendBookingEmail } = require('../services/emailService');
 
 async function createBooking(req, res) {
   const { slot_id } = req.body;
@@ -64,6 +66,45 @@ async function createBooking(req, res) {
   await invalidateCache(slot_id);
   const queue = await getQueueState(slot_id);
   broadcastQueue(slot.business_id, { slotId: slot_id, queue });
+
+  // Send SMS/WhatsApp/Email booking confirmations with QR code asynchronously
+  (async () => {
+    try {
+      const { data: customer } = await supabase
+        .from('users')
+        .select('name, phone, email')
+        .eq('id', user_id)
+        .single();
+
+      if (customer) {
+        if (customer.phone) {
+          await sendBookingConfirmation(
+            customer.phone,
+            booking.id,
+            token_number,
+            slot.businesses.name,
+            slot.date,
+            slot.start_time,
+            slot.end_time
+          );
+        }
+        if (customer.email) {
+          await sendBookingEmail(
+            customer.email,
+            customer.name,
+            booking.id,
+            token_number,
+            slot.businesses.name,
+            slot.date,
+            slot.start_time,
+            slot.end_time
+          );
+        }
+      }
+    } catch (err) {
+      console.error('Failed to send booking notifications:', err);
+    }
+  })();
 
   res.status(201).json(updated);
 }

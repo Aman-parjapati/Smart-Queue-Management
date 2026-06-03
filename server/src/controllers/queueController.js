@@ -6,6 +6,7 @@ const { notifyTurnNear }  = require('../services/twilioService');
 // ── SSE Endpoint ─────────────────────────────────────────────
 async function liveQueue(req, res) {
   const { businessId } = req.params;
+  const { slotId } = req.query;
 
   res.setHeader('Content-Type', 'text/event-stream');
   res.setHeader('Cache-Control', 'no-cache');
@@ -14,23 +15,29 @@ async function liveQueue(req, res) {
   res.flushHeaders();
 
   const clientId = `${Date.now()}-${Math.random()}`;
-  addClient(businessId, clientId, res);
+  addClient(businessId, clientId, res, slotId);
 
   // Send current state immediately on connect
   try {
-    // Get active slot for this business today
-    const today = new Date().toISOString().split('T')[0];
-    const { data: slots } = await supabase
-      .from('slots')
-      .select('id')
-      .eq('business_id', businessId)
-      .eq('date', today)
-      .eq('is_active', true);
+    let targetSlotId = slotId;
+    if (!targetSlotId) {
+      // Get active slot for this business today
+      const today = new Date().toISOString().split('T')[0];
+      const { data: slots } = await supabase
+        .from('slots')
+        .select('id')
+        .eq('business_id', businessId)
+        .eq('date', today)
+        .eq('is_active', true);
 
-    if (slots && slots.length > 0) {
-      const slotId = slots[0].id;
-      const queue = await getQueueState(slotId);
-      res.write(`data: ${JSON.stringify({ slotId, queue })}\n\n`);
+      if (slots && slots.length > 0) {
+        targetSlotId = slots[0].id;
+      }
+    }
+
+    if (targetSlotId) {
+      const queue = await getQueueState(targetSlotId);
+      res.write(`data: ${JSON.stringify({ slotId: targetSlotId, queue })}\n\n`);
     } else {
       res.write(`data: ${JSON.stringify({ slotId: null, queue: [] })}\n\n`);
     }
@@ -145,7 +152,9 @@ async function getQueueStatus(req, res) {
 
   const avgTime = slot?.businesses?.avg_service_time || 10;
 
-  const enriched = queue.map((b, i) => ({
+  const activeQueue = queue.filter(b => b.status !== 'done');
+
+  const enriched = activeQueue.map((b, i) => ({
     ...b,
     position: i + 1,
     estimated_wait: calcWaitTime(i, avgTime),
@@ -154,4 +163,46 @@ async function getQueueStatus(req, res) {
   res.json(enriched);
 }
 
-module.exports = { liveQueue, callNext, skipToken, getQueueStatus };
+// ── Complete Service ──────────────────────────────────────────
+async function completeService(req, res) {
+  const { bookingId, slotId } = req.body;
+
+  if (!bookingId || !slotId) {
+    return res.status(400).json({ error: 'bookingId and slotId are required' });
+  }
+
+  const { data: booking, error } = await supabase
+    .from('bookings')
+    .update({ status: 'done' })
+    .eq('id', bookingId)
+    .eq('status', 'serving')
+    .select()
+    .single();
+
+  if (error || !booking) {
+    return res.status(400).json({ error: 'Booking not found or not currently serving' });
+  }
+
+  await supabase.from('queue_events').insert({
+    booking_id: bookingId,
+    event_type: 'done',
+  });
+
+  await invalidateCache(slotId);
+  const queue = await getQueueState(slotId);
+
+  // Get business_id to broadcast
+  const { data: slot } = await supabase
+    .from('slots')
+    .select('business_id')
+    .eq('id', slotId)
+    .single();
+
+  if (slot) {
+    broadcastQueue(slot.business_id, { slotId, queue });
+  }
+
+  res.json({ success: true, booking, queue });
+}
+
+module.exports = { liveQueue, callNext, skipToken, getQueueStatus, completeService };

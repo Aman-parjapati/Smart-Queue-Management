@@ -1,5 +1,5 @@
 const router = require('express').Router();
-const { liveQueue, callNext, skipToken, getQueueStatus } = require('../controllers/queueController');
+const { liveQueue, callNext, skipToken, getQueueStatus, completeService } = require('../controllers/queueController');
 const { authMiddleware, requireRole } = require('../middleware/auth');
 
 // SSE — no auth needed (public queue board)
@@ -11,5 +11,6 @@ router.get('/status/:slotId', getQueueStatus);
 // Admin/Staff actions
 router.post('/next',       authMiddleware, requireRole('admin', 'staff'), callNext);
 router.post('/skip',       authMiddleware, requireRole('admin', 'staff'), skipToken);
+router.post('/complete',   authMiddleware, requireRole('admin', 'staff'), completeService);
 
 module.exports = router;

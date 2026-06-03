@@ -32,5 +32,12 @@ app.use((err, req, res, next) => {
   res.status(err.status || 500).json({ error: err.message || 'Internal Server Error' });
 });
 
+const { initWhatsApp } = require('./services/whatsappService');
+
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
+app.listen(PORT, () => {
+  console.log(`🚀 Server running on port ${PORT}`);
+  if (process.env.ENABLE_LOCAL_WHATSAPP === 'true') {
+    initWhatsApp();
+  }
+});
