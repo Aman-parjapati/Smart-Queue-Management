@@ -200,4 +200,32 @@ async function updateProfile(req, res) {
   }
 }
 
-module.exports = { register, loginCustomer, loginAdmin, loginStaff, createStaff, listStaff, deleteStaff, getMe, updateProfile };
+async function deleteProfile(req, res) {
+  const { id, role } = req.user;
+
+  try {
+    if (role !== 'customer') {
+      return res.status(403).json({ error: 'Only customers can delete their account' });
+    }
+
+    // Delete bookings first to avoid foreign key constraint issues
+    const { error: bookingsErr } = await supabase
+      .from('bookings')
+      .delete()
+      .eq('user_id', id);
+    if (bookingsErr) throw bookingsErr;
+
+    // Delete user from users table
+    const { error: deleteErr } = await supabase
+      .from('users')
+      .delete()
+      .eq('id', id);
+    if (deleteErr) throw deleteErr;
+
+    res.json({ success: true, message: 'Account deleted successfully' });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+}
+
+module.exports = { register, loginCustomer, loginAdmin, loginStaff, createStaff, listStaff, deleteStaff, getMe, updateProfile, deleteProfile };

@@ -4,6 +4,7 @@ import { useSSE } from '../hooks/useSSE';
 import api from '../lib/api';
 import toast from 'react-hot-toast';
 import CustomDatePicker from '../components/CustomDatePicker';
+import { Html5Qrcode } from 'html5-qrcode';
 
 // ── Analytics Panel ─────────────────────────────────────────
 function AnalyticsPanel({ businessId }) {
@@ -66,17 +67,30 @@ function AnalyticsPanel({ businessId }) {
   );
 }
 
-// ── Slot Creator ─────────────────────────────────────────────
-function SlotCreator({ businessId, onCreated }) {
-  const [form, setForm]   = useState({ date: new Date().toISOString().split('T')[0], start_time: '09:00', end_time: '17:00', max_capacity: 20 });
+// ── Slots Manager ────────────────────────────────────────────
+function SlotsManager({ businessId, slots = [], onRefresh }) {
+  const [form, setForm] = useState({ 
+    date: new Date().toISOString().split('T')[0], 
+    start_time: '09:00', 
+    end_time: '17:00', 
+    max_capacity: 20 
+  });
   const [loading, setLoading] = useState(false);
+  
+  // Editing state
+  const [editingId, setEditingId] = useState(null);
+  const [editForm, setEditForm] = useState({ start_time: '', end_time: '', max_capacity: 20 });
+  const [editLoading, setEditLoading] = useState(false);
+
+  // Deleting confirmation state
+  const [deletingSlot, setDeletingSlot] = useState(null);
 
   async function handleCreate() {
     setLoading(true);
     try {
       await api.post('/slots', { ...form, business_id: businessId });
       toast.success('Slot created!');
-      onCreated?.();
+      onRefresh?.();
     } catch (err) {
       toast.error(err.response?.data?.error || 'Failed to create slot');
     } finally {
@@ -84,34 +98,201 @@ function SlotCreator({ businessId, onCreated }) {
     }
   }
 
+  function startEdit(slot) {
+    setEditingId(slot.id);
+    setEditForm({
+      start_time: slot.start_time.slice(0, 5),
+      end_time: slot.end_time.slice(0, 5),
+      max_capacity: slot.max_capacity
+    });
+  }
+
+  async function handleUpdate(id) {
+    setEditLoading(true);
+    try {
+      await api.put(`/slots/${id}`, editForm);
+      toast.success('Slot updated!');
+      setEditingId(null);
+      onRefresh?.();
+    } catch (err) {
+      toast.error(err.response?.data?.error || 'Failed to update slot');
+    } finally {
+      setEditLoading(false);
+    }
+  }
+
+  async function handleDelete(id) {
+    try {
+      await api.delete(`/slots/${id}`);
+      toast.success('Slot deleted!');
+      onRefresh?.();
+    } catch (err) {
+      toast.error(err.response?.data?.error || 'Failed to delete slot');
+    }
+  }
+
   return (
-    <div className="card mb-6">
-      <h3 className="font-display font-semibold text-lg mb-4">Create Time Slot</h3>
-      <div className="grid sm:grid-cols-2 gap-3 mb-4">
-        {[
-          { label: 'Date', key: 'date', type: 'date' },
-          { label: 'Start Time', key: 'start_time', type: 'time' },
-          { label: 'End Time', key: 'end_time', type: 'time' },
-          { label: 'Max Capacity', key: 'max_capacity', type: 'number' },
-        ].map(({ label, key, type }) => (
-          <div key={key}>
-            <label className="block text-sm text-slate-400 mb-1">{label}</label>
-            {type === 'date' ? (
-              <CustomDatePicker
-                value={form[key]}
-                min={new Date().toISOString().split('T')[0]}
-                onChange={val => setForm(p => ({ ...p, [key]: val }))}
-              />
-            ) : (
-              <input type={type} className="input" value={form[key]}
-                onChange={e => setForm(p => ({ ...p, [key]: e.target.value }))} />
-            )}
+    <div className="grid md:grid-cols-5 gap-6">
+      {/* Creation form */}
+      <div className="card md:col-span-2 self-start">
+        <h3 className="font-display font-semibold text-lg mb-4">Create Time Slot</h3>
+        <div className="space-y-4 mb-4">
+          <div>
+            <label className="block text-xs text-slate-400 mb-1">Date</label>
+            <CustomDatePicker
+              value={form.date}
+              min={new Date().toISOString().split('T')[0]}
+              onChange={val => setForm(p => ({ ...p, date: val }))}
+            />
           </div>
-        ))}
+          <div>
+            <label className="block text-xs text-slate-400 mb-1">Start Time</label>
+            <input type="time" className="input text-sm py-2.5" value={form.start_time}
+              onChange={e => setForm(p => ({ ...p, start_time: e.target.value }))} />
+          </div>
+          <div>
+            <label className="block text-xs text-slate-400 mb-1">End Time</label>
+            <input type="time" className="input text-sm py-2.5" value={form.end_time}
+              onChange={e => setForm(p => ({ ...p, end_time: e.target.value }))} />
+          </div>
+          <div>
+            <label className="block text-xs text-slate-400 mb-1">Max Capacity</label>
+            <input type="number" className="input text-sm py-2.5" value={form.max_capacity}
+              onChange={e => setForm(p => ({ ...p, max_capacity: parseInt(e.target.value) || 20 }))} />
+          </div>
+        </div>
+        <button onClick={handleCreate} disabled={loading} className="btn-primary w-full">
+          {loading ? 'Creating…' : 'Create Slot'}
+        </button>
       </div>
-      <button onClick={handleCreate} disabled={loading} className="btn-primary">
-        {loading ? 'Creating…' : 'Create Slot'}
-      </button>
+
+      {/* Existing Slots List */}
+      <div className="card md:col-span-3">
+        <h3 className="font-display font-semibold text-lg mb-4">Today's Slots</h3>
+        
+        {slots.length === 0 ? (
+          <p className="text-slate-500 text-sm text-center py-8 select-none">No slots created for today yet.</p>
+        ) : (
+          <div className="space-y-3.5">
+            {slots.map((slot, idx) => {
+              const isEditing = editingId === slot.id;
+
+              return (
+                <div key={slot.id} className="bg-surface-900 border border-slate-800/80 rounded-xl p-4 transition-all">
+                  {isEditing ? (
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between mb-1 select-none">
+                        <span className="text-xs font-bold text-slate-400 uppercase tracking-wide">Editing Slot {idx + 1}</span>
+                        <span className="text-xs text-slate-500">{slot.booked_count} Booked</span>
+                      </div>
+                      <div className="grid grid-cols-2 gap-2">
+                        <div>
+                          <label className="block text-[10px] text-slate-500 mb-0.5">Start Time</label>
+                          <input type="time" className="input text-xs py-1.5 px-2.5" value={editForm.start_time}
+                            onChange={e => setEditForm(p => ({ ...p, start_time: e.target.value }))} />
+                        </div>
+                        <div>
+                          <label className="block text-[10px] text-slate-500 mb-0.5">End Time</label>
+                          <input type="time" className="input text-xs py-1.5 px-2.5" value={editForm.end_time}
+                            onChange={e => setEditForm(p => ({ ...p, end_time: e.target.value }))} />
+                        </div>
+                      </div>
+                      <div>
+                        <label className="block text-[10px] text-slate-500 mb-0.5">Max Capacity</label>
+                        <input type="number" className="input text-xs py-1.5 px-2.5" value={editForm.max_capacity}
+                          onChange={e => setEditForm(p => ({ ...p, max_capacity: parseInt(e.target.value) || 20 }))} />
+                      </div>
+                      <div className="flex gap-2 pt-1.5 select-none">
+                        <button onClick={() => setEditingId(null)} className="btn-secondary text-xs py-1.5 px-3 flex-1">
+                          Cancel
+                        </button>
+                        <button onClick={() => handleUpdate(slot.id)} disabled={editLoading} className="btn-primary text-xs py-1.5 px-3 flex-1">
+                          {editLoading ? 'Saving…' : 'Save'}
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="flex items-center justify-between gap-4">
+                      <div>
+                        <div className="flex items-center gap-2 mb-1 select-none">
+                          <span className="text-[10px] font-bold bg-slate-800 text-slate-400 px-1.5 py-0.5 rounded uppercase tracking-wider">
+                            Slot {idx + 1}
+                          </span>
+                          {slot.booked_count >= slot.max_capacity ? (
+                            <span className="badge bg-red-950/40 text-red-400 text-[10px]">Full</span>
+                          ) : (
+                            <span className="badge bg-emerald-950/40 text-emerald-450 text-[10px]">Active</span>
+                          )}
+                        </div>
+                        <p className="font-mono text-base font-bold text-white tracking-wide">
+                          {slot.start_time.slice(0, 5)} – {slot.end_time.slice(0, 5)}
+                        </p>
+                        <p className="text-xs text-slate-400 mt-1 select-none">
+                          {slot.booked_count} / {slot.max_capacity} booked
+                        </p>
+                      </div>
+                      <div className="flex gap-2 select-none">
+                        <button
+                          onClick={() => startEdit(slot)}
+                          className="text-xs bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white px-3 py-1.5 rounded-lg transition-colors border border-slate-700/50"
+                        >
+                          Edit
+                        </button>
+                        <button
+                          onClick={() => setDeletingSlot(slot)}
+                          className="text-xs bg-red-950/20 hover:bg-red-900/30 text-red-400 hover:text-red-300 px-3 py-1.5 rounded-lg transition-colors border border-red-900/20"
+                        >
+                          Delete
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </div>
+
+      {/* Delete Confirmation Modal */}
+      {deletingSlot && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-fade-in select-none">
+          <div className="relative bg-surface-950 border border-slate-800 rounded-2xl shadow-2xl w-full max-w-sm p-6 overflow-hidden animate-slide-up origin-center text-center">
+            {/* Warning Icon */}
+            <div className="w-12 h-12 rounded-full bg-red-900/30 border border-red-700/30 flex items-center justify-center mx-auto mb-4 text-red-450">
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+              </svg>
+            </div>
+
+            <h3 className="font-display font-bold text-lg text-white mb-2">Delete Timeslot</h3>
+            <p className="text-sm text-slate-400 mb-6">
+              Are you sure you want to delete the slot <span className="font-mono font-bold text-white">{deletingSlot.start_time.slice(0, 5)} – {deletingSlot.end_time.slice(0, 5)}</span>? This action cannot be undone.
+            </p>
+
+            <div className="flex gap-3">
+              <button
+                type="button"
+                onClick={() => setDeletingSlot(null)}
+                className="btn-secondary text-sm py-2 flex-1"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  const id = deletingSlot.id;
+                  setDeletingSlot(null);
+                  handleDelete(id);
+                }}
+                className="btn-primary bg-red-600 hover:bg-red-500 border-none text-sm py-2 flex-1 font-semibold"
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -296,22 +477,93 @@ function QRScanner() {
     }
   }
 
+  useEffect(() => {
+    let html5QrCode = null;
+    let isMounted = true;
+
+    if (scanning) {
+      html5QrCode = new Html5Qrcode("reader");
+      
+      html5QrCode.start(
+        { facingMode: "environment" },
+        { fps: 10, qrbox: { width: 220, height: 220 } },
+        (decodedText) => {
+          checkIn(decodedText);
+          if (isMounted) {
+            setScanning(false);
+          }
+        },
+        () => {} // ignore scan failures
+      ).catch(err => {
+        console.error("QR scanner start failed:", err);
+        toast.error("Could not access camera. Please check permissions.");
+        if (isMounted) {
+          setScanning(false);
+        }
+      });
+    }
+
+    return () => {
+      isMounted = false;
+      if (html5QrCode) {
+        if (html5QrCode.isScanning) {
+          html5QrCode.stop().catch(err => console.error("Failed to stop QR scanner", err));
+        }
+      }
+    };
+  }, [scanning]);
+
   return (
     <div className="card mb-6">
-      <h3 className="font-display font-semibold text-lg mb-4">QR Check-in</h3>
+      <div className="flex items-center justify-between mb-4 select-none">
+        <h3 className="font-display font-semibold text-lg">QR Check-in</h3>
+        {!scanning && (
+          <button 
+            onClick={() => { setScanning(true); setResult(null); }}
+            className="text-xs bg-brand-600/10 hover:bg-brand-600/20 text-brand-400 hover:text-brand-300 px-3 py-1.5 rounded-lg border border-brand-500/20 flex items-center gap-1.5 transition-all font-semibold"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M6.827 6.175A2.31 2.31 0 015.186 7.23c-.38.054-.757.112-1.134.175C2.999 7.58 2.25 8.507 2.25 9.574V18a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18V9.574c0-1.067-.75-1.994-1.802-2.169a47.865 47.865 0 00-1.134-.175 2.31 2.31 0 01-1.64-1.055l-.822-1.316a2.192 2.192 0 00-1.736-1.039 48.774 48.774 0 00-5.232 0 2.192 2.192 0 00-1.736 1.039l-.821 1.316z" />
+              <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 12.75a4.5 4.5 0 11-9 0 4.5 4.5 0 019 0zM18.75 10.5h.008v.008h-.008V10.5z" />
+            </svg>
+            Scan with Camera
+          </button>
+        )}
+      </div>
+
+      {scanning && (
+        <div className="relative mb-6 mx-auto w-full max-w-sm rounded-2xl overflow-hidden border border-slate-800 bg-slate-950 p-4">
+          <div className="relative w-full aspect-square bg-slate-900 rounded-xl overflow-hidden mb-4">
+            <div id="reader" className="w-full h-full"></div>
+            
+            <div className="absolute inset-0 pointer-events-none flex items-center justify-center">
+              <div className="w-[220px] h-[220px] border-2 border-dashed border-emerald-500 rounded-xl flex items-center justify-center bg-emerald-500/5">
+                <div className="w-[200px] h-0.5 bg-emerald-400 absolute animate-pulse shadow-md shadow-emerald-500/50" />
+              </div>
+            </div>
+          </div>
+          
+          <button 
+            type="button" 
+            onClick={() => setScanning(false)}
+            className="btn-secondary w-full text-xs py-2 bg-red-950/20 hover:bg-red-900/30 text-red-400 border-red-900/20"
+          >
+            Cancel Scanning
+          </button>
+        </div>
+      )}
+
       <div className="flex gap-2">
         <input className="input flex-1" placeholder="Paste booking ID…" value={manualId}
           onChange={e => setManualId(e.target.value)} />
         <button className="btn-primary" onClick={() => manualId && checkIn(manualId)}>Check In</button>
       </div>
+
       {result && (
-        <div className={`mt-3 p-3 rounded-xl text-sm ${result.success ? 'bg-emerald-900/20 text-emerald-400' : 'bg-red-900/20 text-red-400'}`}>
+        <div className={`mt-3 p-3 rounded-xl text-sm ${result.success ? 'bg-emerald-900/20 text-emerald-455' : 'bg-red-900/20 text-red-400'}`}>
           {result.message}
         </div>
       )}
-      <p className="text-slate-500 text-xs mt-3">
-        For camera QR scanning, install the html5-qrcode scanner component in production.
-      </p>
     </div>
   );
 }
@@ -651,14 +903,26 @@ export default function AdminDashboard() {
     });
   }, [user]);
 
-  useEffect(() => {
+  const refreshSlots = () => {
     if (!activeBiz) return;
     const today = new Date().toISOString().split('T')[0];
     api.get(`/slots/business/${activeBiz.id}?date=${today}`)
        .then(r => {
          setSlots(r.data);
-         if (r.data.length > 0) setActiveSlot(r.data[0]);
+         if (r.data.length > 0) {
+           setActiveSlot(prev => r.data.find(s => s.id === prev?.id) || r.data[0]);
+         } else {
+           setActiveSlot(null);
+         }
+       })
+       .catch(() => {
+         setSlots([]);
+         setActiveSlot(null);
        });
+  };
+
+  useEffect(() => {
+    refreshSlots();
   }, [activeBiz]);
 
   function handleBusinessCreated(newBiz) {
@@ -756,7 +1020,13 @@ export default function AdminDashboard() {
         />
       )}
       {tab === 'analytics' && <AnalyticsPanel businessId={activeBiz?.id} />}
-      {tab === 'slots'     && <SlotCreator businessId={activeBiz?.id} onCreated={() => {}} />}
+      {tab === 'slots'     && (
+        <SlotsManager
+          businessId={activeBiz?.id}
+          slots={slots}
+          onRefresh={refreshSlots}
+        />
+      )}
       {tab === 'checkin'   && <QRScanner />}
       {tab === 'staff'     && isAdmin && <StaffManager />}
     </div>
