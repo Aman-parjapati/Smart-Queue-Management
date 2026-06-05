@@ -20,6 +20,20 @@ async function createBooking(req, res) {
 
   if (slotErr || !slot) return res.status(404).json({ error: 'Slot not found' });
   if (!slot.is_active) return res.status(400).json({ error: 'Slot is not active' });
+  
+  // Prevent booking slots that are in the past
+  const now = new Date();
+  const todayStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+  if (slot.date < todayStr) {
+    return res.status(400).json({ error: 'Slot date is in the past' });
+  }
+  if (slot.date === todayStr) {
+    const currentHHMM = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+    if (slot.end_time.slice(0, 5) < currentHHMM) {
+      return res.status(400).json({ error: 'Slot time is in the past' });
+    }
+  }
+
   if (slot.booked_count >= slot.max_capacity) {
     return res.status(400).json({ error: 'Slot is fully booked' });
   }

@@ -4,12 +4,32 @@ const { authMiddleware, requireRole } = require('../middleware/auth');
 
 // List all businesses (public)
 router.get('/', async (req, res) => {
-  const { data, error } = await supabase
-    .from('businesses')
-    .select('*')
-    .order('name');
-  if (error) return res.status(500).json({ error: error.message });
-  res.json(data);
+  try {
+    const { data: businesses, error: bizError } = await supabase
+      .from('businesses')
+      .select('*')
+      .order('name');
+    if (bizError) throw bizError;
+
+    // Get today's active slots
+    const today = new Date().toISOString().split('T')[0];
+    const { data: slots, error: slotError } = await supabase
+      .from('slots')
+      .select('business_id')
+      .eq('date', today)
+      .eq('is_active', true);
+    if (slotError) throw slotError;
+
+    const activeBizIds = new Set(slots.map(s => s.business_id));
+    const result = businesses.map(b => ({
+      ...b,
+      has_slots_today: activeBizIds.has(b.id)
+    }));
+
+    res.json(result);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
 });
 
 // Get single business

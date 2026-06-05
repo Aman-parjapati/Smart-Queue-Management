@@ -81,9 +81,20 @@ export default function Home() {
                 <Link to={`/book/${biz.id}`} className="btn-primary text-sm py-2 flex-1 text-center">
                   Book Slot
                 </Link>
-                <Link to={`/board/${biz.id}`} className="btn-secondary text-sm py-2 px-3 text-center">
-                  👁 Live
-                </Link>
+                {biz.has_slots_today ? (
+                  <Link to={`/board/${biz.id}`} className="btn-secondary text-sm py-2 px-3 text-center flex items-center justify-center gap-1.5 text-emerald-400 hover:text-emerald-300 border-emerald-500/20 hover:border-emerald-500/40 transition-colors bg-emerald-500/5">
+                    <span className="relative flex h-2 w-2">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                      <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                    </span>
+                    Live
+                  </Link>
+                ) : (
+                  <span className="btn-secondary text-sm py-2 px-3 text-center opacity-40 cursor-not-allowed select-none bg-slate-800 text-slate-500 border-slate-700/60 flex items-center justify-center gap-1.5">
+                    <span className="inline-block w-2 h-2 rounded-full bg-slate-600" />
+                    Offline
+                  </span>
+                )}
               </div>
             </div>
           ))}

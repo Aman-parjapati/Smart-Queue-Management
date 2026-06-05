@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import api from '../lib/api';
 import toast from 'react-hot-toast';
+import CustomDatePicker from '../components/CustomDatePicker';
 
 function SlotCard({ slot, selected, onSelect }) {
   const pct = Math.round((slot.booked_count / slot.max_capacity) * 100);
@@ -70,6 +71,16 @@ export default function BookSlot() {
     }
   }
 
+  const now = new Date();
+  const todayStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+  const currentHHMM = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+
+  const availableSlots = slots.filter(slot => {
+    if (slot.date < todayStr) return false;
+    if (slot.date > todayStr) return true;
+    return slot.end_time.slice(0, 5) >= currentHHMM;
+  });
+
   return (
     <div className="max-w-2xl mx-auto px-4 py-12 animate-fade-in">
       {business && (
@@ -83,14 +94,16 @@ export default function BookSlot() {
       {/* Date picker */}
       <div className="mb-6">
         <label className="block text-sm text-slate-300 mb-1.5">Select Date</label>
-        <input type="date" className="input max-w-xs"
-          value={date} min={new Date().toISOString().split('T')[0]}
-          onChange={e => { setDate(e.target.value); setSelected(null); }} />
+        <CustomDatePicker
+          value={date}
+          min={new Date().toISOString().split('T')[0]}
+          onChange={val => { setDate(val); setSelected(null); }}
+        />
       </div>
 
       {/* Slots */}
       <h2 className="font-display font-semibold text-lg mb-4">Available Time Slots</h2>
-      {slots.length === 0 ? (
+      {availableSlots.length === 0 ? (
         <div className="card text-center text-slate-400 py-12 px-6">
           <p className="font-medium text-slate-300 mb-2">No slots available for this date.</p>
           <p className="text-slate-500 text-xs max-w-sm mx-auto leading-relaxed">
@@ -99,7 +112,7 @@ export default function BookSlot() {
         </div>
       ) : (
         <div className="grid sm:grid-cols-2 gap-3 mb-8">
-          {slots.map(slot => (
+          {availableSlots.map(slot => (
             <SlotCard key={slot.id} slot={slot} selected={selected} onSelect={setSelected} />
           ))}
         </div>

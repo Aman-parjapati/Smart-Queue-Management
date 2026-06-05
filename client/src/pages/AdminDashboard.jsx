@@ -3,6 +3,7 @@ import { useAuth } from '../lib/AuthContext';
 import { useSSE } from '../hooks/useSSE';
 import api from '../lib/api';
 import toast from 'react-hot-toast';
+import CustomDatePicker from '../components/CustomDatePicker';
 
 // ── Analytics Panel ─────────────────────────────────────────
 function AnalyticsPanel({ businessId }) {
@@ -95,8 +96,16 @@ function SlotCreator({ businessId, onCreated }) {
         ].map(({ label, key, type }) => (
           <div key={key}>
             <label className="block text-sm text-slate-400 mb-1">{label}</label>
-            <input type={type} className="input" value={form[key]}
-              onChange={e => setForm(p => ({ ...p, [key]: e.target.value }))} />
+            {type === 'date' ? (
+              <CustomDatePicker
+                value={form[key]}
+                min={new Date().toISOString().split('T')[0]}
+                onChange={val => setForm(p => ({ ...p, [key]: val }))}
+              />
+            ) : (
+              <input type={type} className="input" value={form[key]}
+                onChange={e => setForm(p => ({ ...p, [key]: e.target.value }))} />
+            )}
           </div>
         ))}
       </div>
@@ -625,6 +634,7 @@ export default function AdminDashboard() {
 
   const { queue, connected } = useSSE(activeBiz?.id, activeSlot?.id);
   const isAdmin = user?.role === 'admin';
+  const isLive = connected && slots.length > 0;
 
   useEffect(() => {
     api.get('/businesses').then(r => {
@@ -706,12 +716,12 @@ export default function AdminDashboard() {
             </span>
           </p>
         </div>
-        <div className="flex items-center gap-2 text-sm">
+        <div className="flex items-center gap-2 text-sm select-none">
           <span className="relative flex h-2 w-2">
-            <span className={`${connected ? 'animate-ping' : ''} absolute inline-flex h-full w-full rounded-full ${connected ? 'bg-emerald-400' : 'bg-red-500'} opacity-75`}></span>
-            <span className={`relative inline-flex rounded-full h-2 w-2 ${connected ? 'bg-emerald-500' : 'bg-red-500'}`}></span>
+            <span className={`${isLive ? 'animate-ping' : ''} absolute inline-flex h-full w-full rounded-full ${isLive ? 'bg-emerald-400' : 'bg-red-500'} opacity-75`}></span>
+            <span className={`relative inline-flex rounded-full h-2 w-2 ${isLive ? 'bg-emerald-500' : 'bg-red-500'}`}></span>
           </span>
-          <span className={`text-xs ${connected ? 'text-emerald-400' : 'text-red-400'}`}>{connected ? 'Live' : 'Offline'}</span>
+          <span className={`text-xs ${isLive ? 'text-emerald-400' : 'text-red-400'}`}>{isLive ? 'Live' : 'Offline'}</span>
         </div>
       </div>
 

@@ -48,6 +48,15 @@ export function AuthProvider({ children }) {
     setUser(null);
   }
 
+  function updateUserLocalState(updatedFields) {
+    setUser(prev => {
+      if (!prev) return null;
+      const merged = { ...prev, ...updatedFields };
+      localStorage.setItem('sq_user', JSON.stringify(merged));
+      return merged;
+    });
+  }
+
   function _persist({ user, token }) {
     localStorage.setItem('sq_token', token);
     localStorage.setItem('sq_user', JSON.stringify(user));
@@ -55,7 +64,7 @@ export function AuthProvider({ children }) {
   }
 
   return (
-    <AuthContext.Provider value={{ user, register, loginCustomer, loginAdmin, loginStaff, logout, loading }}>
+    <AuthContext.Provider value={{ user, register, loginCustomer, loginAdmin, loginStaff, logout, updateUserLocalState, loading }}>
       {children}
     </AuthContext.Provider>
   );

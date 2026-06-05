@@ -154,4 +154,50 @@ async function getMe(req, res) {
   res.json({ ...data, role });
 }
 
-module.exports = { register, loginCustomer, loginAdmin, loginStaff, createStaff, listStaff, deleteStaff, getMe };
+async function updateProfile(req, res) {
+  const { id, role, table } = req.user;
+  const { name, email, phone, password } = req.body;
+
+  try {
+    const updates = {};
+    
+    // Customers can update email, phone, and name.
+    if (role === 'customer') {
+      if (name !== undefined) updates.name = name;
+      if (email !== undefined) {
+        // Check if email already registered for another user
+        const { data: existing } = await supabase
+          .from('users').select('id').eq('email', email).neq('id', id);
+        if (existing && existing.length > 0) {
+          return res.status(409).json({ error: 'Email already registered' });
+        }
+        updates.email = email;
+      }
+      if (phone !== undefined) updates.phone = phone;
+    }
+
+    // Staff/Admin can update password and phone.
+    if (role === 'staff' || role === 'admin') {
+      if (phone !== undefined) updates.phone = phone;
+      if (password) {
+        updates.password_hash = await bcrypt.hash(password, 12);
+      }
+    }
+
+    // Perform update in the appropriate table
+    const { data: updatedUser, error: updateErr } = await supabase
+      .from(table)
+      .update(updates)
+      .eq('id', id)
+      .select('id, name, email, phone')
+      .single();
+
+    if (updateErr) throw updateErr;
+
+    res.json({ success: true, user: { ...updatedUser, role } });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+}
+
+module.exports = { register, loginCustomer, loginAdmin, loginStaff, createStaff, listStaff, deleteStaff, getMe, updateProfile };

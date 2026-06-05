@@ -56,3 +56,9 @@
   background: currentColor;
   animation: ping-dot 1.2s cubic-bezier(0, 0, 0.2, 1) infinite;
 }
+
+/* Fallback color scheme for native widgets (like datetime/time pickers) */
+input[type="date"],
+input[type="time"] {
+  color-scheme: dark;
+}

@@ -23,6 +23,7 @@ export default function QueueBoard() {
   }, [businessId]);
 
   const { queue, connected } = useSSE(businessId, activeSlot?.id);
+  const isLive = connected && slots.length > 0;
 
   const serving  = queue.filter(b => b.status === 'serving');
   const waiting  = queue.filter(b => b.status !== 'serving' && b.status !== 'done');
@@ -30,18 +31,18 @@ export default function QueueBoard() {
   return (
     <div className="min-h-screen bg-surface-950 p-6 md:p-12 animate-fade-in">
       {/* Header */}
-      <div className="flex items-center justify-between mb-10">
+      <div className="flex items-center justify-between mb-10 select-none">
         <div>
           <p className="text-slate-500 text-sm uppercase tracking-widest">Queue Board</p>
           <h1 className="font-display text-3xl font-bold">{business?.name || '—'}</h1>
         </div>
         <div className="flex items-center gap-2 text-sm">
           <span className="relative flex h-2.5 w-2.5">
-            <span className={`${connected ? 'animate-ping' : ''} absolute inline-flex h-full w-full rounded-full ${connected ? 'bg-emerald-400' : 'bg-red-500'} opacity-75`}></span>
-            <span className={`relative inline-flex rounded-full h-2.5 w-2.5 ${connected ? 'bg-emerald-500' : 'bg-red-500'}`}></span>
+            <span className={`${isLive ? 'animate-ping' : ''} absolute inline-flex h-full w-full rounded-full ${isLive ? 'bg-emerald-400' : 'bg-red-500'} opacity-75`}></span>
+            <span className={`relative inline-flex rounded-full h-2.5 w-2.5 ${isLive ? 'bg-emerald-500' : 'bg-red-500'}`}></span>
           </span>
-          <span className={connected ? 'text-emerald-400' : 'text-red-400'}>
-            {connected ? 'LIVE' : 'OFFLINE'}
+          <span className={isLive ? 'text-emerald-400' : 'text-red-400'}>
+            {isLive ? 'LIVE' : 'OFFLINE'}
           </span>
         </div>
       </div>
