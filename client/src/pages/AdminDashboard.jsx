@@ -167,7 +167,7 @@ function SlotsManager({ businessId, slots = [], onRefresh }) {
       </div>
 
       {/* Existing Slots List */}
-      <div className="card md:col-span-3">
+      <div className="card md:col-span-3 self-start">
         <h3 className="font-display font-semibold text-lg mb-4">Today's Slots</h3>
         
         {slots.length === 0 ? (

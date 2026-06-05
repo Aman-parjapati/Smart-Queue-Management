@@ -12,4 +12,21 @@ export default defineConfig({
       },
     },
   },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          if (id.includes('node_modules')) {
+            if (id.includes('react') || id.includes('scheduler')) {
+              return 'vendor-react';
+            }
+            if (id.includes('html5-qrcode')) {
+              return 'vendor-qrcode';
+            }
+            return 'vendor';
+          }
+        }
+      }
+    }
+  }
 });
