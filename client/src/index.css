@@ -3,33 +3,121 @@
 @tailwind utilities;
 
 @layer base {
-  * { box-sizing: border-box; }
+  html {
+    scroll-behavior: smooth;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
   body {
     font-family: 'DM Sans', sans-serif;
-    background-color: #0f172a;
-    color: #f1f5f9;
+    background-color: #ffffff;
+    background-image:
+      radial-gradient(at 0% 0%, rgba(243, 232, 255, 0.8) 0px, transparent 50%),
+      radial-gradient(at 100% 100%, rgba(204, 251, 241, 0.8) 0px, transparent 50%),
+      radial-gradient(at 100% 0%, rgba(224, 242, 254, 0.6) 0px, transparent 50%),
+      radial-gradient(at 0% 100%, rgba(253, 242, 248, 0.6) 0px, transparent 50%);
+    background-attachment: fixed;
+    color: #0f172a;
     -webkit-font-smoothing: antialiased;
   }
-  h1, h2, h3, h4 { font-family: 'Syne', sans-serif; }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-family: 'Syne', sans-serif;
+  }
 }
 
 @layer components {
   .btn-primary {
-    @apply bg-brand-600 hover:bg-brand-500 text-white font-medium px-5 py-2.5 rounded-xl
-           transition-all duration-200 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #2563eb;
+    color: #ffffff;
+    font-weight: 600;
+    padding: 0.625rem 1.25rem;
+    border-radius: 9999px;
+    transition: all 0.2s ease;
+    cursor: pointer;
+    border: none;
   }
+
+  .btn-primary:hover:not(:disabled) {
+    background-color: #1d4ed8;
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+  }
+
+  .btn-primary:active:not(:disabled) {
+    transform: scale(0.98);
+  }
+
+  .btn-primary:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
   .btn-secondary {
-    @apply bg-surface-800 hover:bg-surface-800/80 text-slate-200 font-medium px-5 py-2.5 rounded-xl
-           border border-slate-700 transition-all duration-200 active:scale-95;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #ffffff;
+    color: #2563eb;
+    font-weight: 600;
+    padding: 0.625rem 1.25rem;
+    border-radius: 9999px;
+    border: 1px solid #dbeafe;
+    transition: all 0.2s ease;
+    cursor: pointer;
   }
+
+  .btn-secondary:hover {
+    background-color: #f0f7ff;
+    border-color: #bfdbfe;
+  }
+
+  .btn-secondary:active {
+    transform: scale(0.98);
+  }
+
   .card {
-    @apply bg-surface-800 border border-slate-700/50 rounded-2xl p-6;
+    background: #ffffff;
+    border: 1px solid rgba(226, 232, 240, 0.8);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+    border-radius: 1rem;
+    padding: 1.5rem;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
   }
+
+  .card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -2px rgba(0, 0, 0, 0.04);
+  }
+
   .input {
-    @apply w-full bg-surface-900 border border-slate-700 rounded-xl px-4 py-3 text-slate-100
-           placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent
-           transition-all duration-200;
+    width: 100%;
+    background-color: #ffffff;
+    border: 1px solid #cbd5e1;
+    border-radius: 0.75rem;
+    padding: 0.75rem 1rem;
+    color: #0f172a;
+    outline: none;
+    transition: all 0.2s ease;
   }
+
+  .input::placeholder {
+    color: #94a3b8;
+  }
+
+  .input:focus {
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+  }
+
   .badge {
     @apply inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium;
   }
@@ -46,8 +134,14 @@
 
 /* SSE live dot */
 @keyframes ping-dot {
-  75%, 100% { transform: scale(2); opacity: 0; }
+
+  75%,
+  100% {
+    transform: scale(2);
+    opacity: 0;
+  }
 }
+
 .live-dot::before {
   content: '';
   position: absolute;
@@ -60,7 +154,7 @@
 /* Fallback color scheme for native widgets (like datetime/time pickers) */
 input[type="date"],
 input[type="time"] {
-  color-scheme: dark;
+  color-scheme: light;
 }
 
 /* Hide number input spin buttons (arrows) */
@@ -69,6 +163,29 @@ input[type="number"]::-webkit-inner-spin-button {
   -webkit-appearance: none;
   margin: 0;
 }
+
 input[type="number"] {
   -moz-appearance: textfield;
+}
+
+.text-shadow-premium {
+  text-shadow: 0 4px 12px rgba(37, 99, 235, 0.1);
+}
+
+/* Navigation link clean pill hover animation */
+.nav-pill-item {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem 1.125rem;
+  border-radius: 9999px;
+  color: #475569; /* Slate 600 */
+  font-weight: 500;
+  transition: all 0.2s ease-in-out;
+  cursor: pointer;
+}
+
+.nav-pill-item:hover {
+  background-color: rgba(99, 102, 241, 0.08); /* Soft lavender-blue background */
+  color: #4f46e5; /* Bold purple-indigo text */
 }

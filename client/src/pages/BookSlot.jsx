@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import api from '../lib/api';
 import toast from 'react-hot-toast';
 import CustomDatePicker from '../components/CustomDatePicker';
+import { useAuth } from '../lib/AuthContext';
 
 function SlotCard({ slot, selected, onSelect }) {
   const pct = Math.round((slot.booked_count / slot.max_capacity) * 100);
@@ -39,6 +40,7 @@ function SlotCard({ slot, selected, onSelect }) {
 }
 
 export default function BookSlot() {
+  const { user } = useAuth();
   const { businessId } = useParams();
   const navigate = useNavigate();
   const [business, setBusiness] = useState(null);
@@ -59,6 +61,11 @@ export default function BookSlot() {
 
   async function handleBook() {
     if (!selected) return;
+    if (!user) {
+      toast.error('Please log in or sign up to confirm your booking.');
+      navigate('/login');
+      return;
+    }
     setLoading(true);
     try {
       const { data } = await api.post('/bookings', { slot_id: selected.id });

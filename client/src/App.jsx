@@ -52,9 +52,7 @@ export default function App() {
               <Route path="/login/admin"       element={<AdminLogin />} />
               <Route path="/board/:businessId" element={<QueueBoard />} />
 
-              <Route path="/book/:businessId"  element={
-                <RequireAuth><BookSlot /></RequireAuth>
-              } />
+              <Route path="/book/:businessId"  element={<BookSlot />} />
               <Route path="/token/:bookingId"  element={
                 <RequireAuth><MyToken /></RequireAuth>
               } />
