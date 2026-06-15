@@ -12,6 +12,7 @@ const MyToken        = lazy(() => import('./pages/MyToken'));
 const AdminDashboard = lazy(() => import('./pages/AdminDashboard'));
 const QueueBoard     = lazy(() => import('./pages/QueueBoard'));
 const MyBookings     = lazy(() => import('./pages/MyBookings'));
+const Directory      = lazy(() => import('./pages/Directory'));
 
 function LoadingFallback() {
   return (
@@ -47,6 +48,7 @@ export default function App() {
           <Routes>
             <Route element={<Layout />}>
               <Route path="/"                  element={<Home />} />
+              <Route path="/directory"          element={<Directory />} />
               <Route path="/login"             element={<Login />} />
               <Route path="/register"          element={<Register />} />
               <Route path="/login/admin"       element={<AdminLogin />} />

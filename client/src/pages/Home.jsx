@@ -54,7 +54,7 @@ export default function Home() {
   }
 
   return (
-    <div className="text-slate-800 dark:text-slate-100 font-sans">
+    <div className="text-slate-800 dark:text-slate-100 font-sans animate-fade-in">
       {/* ── 1. HERO SECTION ── */}
       <section className="max-w-6xl mx-auto px-4 py-16 md:py-24 grid lg:grid-cols-12 gap-12 items-center">
         <div className="lg:col-span-7 space-y-6 text-center lg:text-left">

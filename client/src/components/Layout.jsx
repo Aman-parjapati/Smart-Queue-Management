@@ -1,11 +1,12 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { Outlet, Link, useNavigate } from 'react-router-dom';
+import { Outlet, Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../lib/AuthContext';
 import ProfileModal from './ProfileModal';
 
 export default function Layout() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const [showProfileModal, setShowProfileModal] = useState(false);
   const [spinning, setSpinning] = useState(false);
   const [darkMode, setDarkMode] = useState(() => {
@@ -79,6 +80,18 @@ export default function Layout() {
     </button>
   );
 
+  const directoryLink = (
+    <Link
+      to="/directory"
+      className="text-slate-500 hover:text-brand-600 dark:text-slate-400 dark:hover:text-brand-400 transition-colors p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800"
+      title="Businesses Directory"
+    >
+      <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+      </svg>
+    </Link>
+  );
+
   return (
     <div className="relative min-h-screen flex flex-col">
       {/* Nav */}
@@ -110,6 +123,7 @@ export default function Layout() {
                   </svg>
                 </Link>
 
+                {directoryLink}
                 {themeToggle}
 
                 {(user.role === 'admin' || user.role === 'staff') && (
@@ -140,6 +154,7 @@ export default function Layout() {
               </>
             ) : (
               <>
+                {directoryLink}
                 {themeToggle}
                 <Link to="/login/admin" className="text-sm text-slate-500 hover:text-brand-600 dark:text-slate-400 dark:hover:text-brand-400 transition-colors hidden sm:block font-medium">Staff</Link>
                 <Link to="/login" className="text-sm text-slate-650 hover:text-brand-600 dark:text-slate-350 dark:hover:text-brand-400 transition-colors font-semibold px-2">Login</Link>
@@ -151,7 +166,7 @@ export default function Layout() {
       </header>
 
       {/* Page content */}
-      <main className="flex-1 relative z-10">
+      <main key={location.pathname} className="flex-1 relative z-10 animate-fade-in">
         <Outlet />
       </main>
 
