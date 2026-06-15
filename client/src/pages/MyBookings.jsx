@@ -3,11 +3,11 @@ import { Link } from 'react-router-dom';
 import api from '../lib/api';
 
 const STATUS_BADGES = {
-  pending: 'bg-yellow-900/40 text-yellow-400 border-yellow-700/40',
-  arrived: 'bg-blue-900/40 text-blue-400 border-blue-700/40',
-  serving: 'bg-emerald-900/40 text-emerald-400 border-emerald-700/40 animate-pulse',
-  done: 'bg-slate-800 text-slate-400',
-  skipped: 'bg-red-900/40 text-red-400 border-red-700/40',
+  pending: 'bg-yellow-50 dark:bg-yellow-900/40 text-yellow-600 dark:text-yellow-400 border-yellow-250 dark:border-yellow-700/40',
+  arrived: 'bg-amber-50 dark:bg-blue-900/40 text-amber-600 dark:text-amber-400 border-blue-200 dark:border-blue-700/40',
+  serving: 'bg-emerald-50 dark:bg-emerald-900/40 text-emerald-600 dark:text-emerald-400 border-emerald-250 dark:border-emerald-700/40 animate-pulse',
+  done: 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-slate-700',
+  skipped: 'bg-red-50 dark:bg-red-900/40 text-red-650 dark:text-red-400 border-red-200 dark:border-red-700/40',
 };
 
 export default function MyBookings() {
@@ -31,7 +31,7 @@ export default function MyBookings() {
       {loading ? (
         <div className="space-y-4">
           {[...Array(3)].map((_, i) => (
-            <div key={i} className="card h-28 animate-pulse bg-slate-800" />
+            <div key={i} className="card h-28 animate-pulse bg-slate-100 dark:bg-slate-800" />
           ))}
         </div>
       ) : bookings.length === 0 ? (
@@ -44,10 +44,10 @@ export default function MyBookings() {
       ) : (
         <div className="space-y-4">
           {bookings.map(b => (
-            <div key={b.id} className="card hover:border-slate-700 transition-all flex flex-col sm:flex-row justify-between sm:items-center gap-4">
+            <div key={b.id} className="card hover:border-slate-300 dark:hover:border-slate-700 transition-all flex flex-col sm:flex-row justify-between sm:items-center gap-4">
               <div>
                 <div className="flex items-center gap-3 mb-2 flex-wrap">
-                  <span className="font-display font-bold text-white text-lg">
+                  <span className="font-display font-bold text-slate-900 dark:text-white text-lg">
                     {b.slots?.businesses?.name}
                   </span>
                   <span className={`badge border capitalize ${STATUS_BADGES[b.status] || STATUS_BADGES.pending}`}>
@@ -61,10 +61,10 @@ export default function MyBookings() {
                   </p>
                 </div>
               </div>
-              <div className="flex sm:flex-col items-start sm:items-end justify-between sm:justify-center border-t sm:border-t-0 border-slate-800 pt-3 sm:pt-0 gap-3">
+              <div className="flex sm:flex-col items-start sm:items-end justify-between sm:justify-center border-t sm:border-t-0 border-slate-150 dark:border-slate-800 pt-3 sm:pt-0 gap-3">
                 <div className="text-left sm:text-right">
                   <p className="text-xs text-slate-500">Token Number</p>
-                  <p className="text-2xl font-display font-bold text-white">
+                  <p className="text-2xl font-display font-bold text-slate-900 dark:text-white">
                     #{String(b.token_number).padStart(3, '0')}
                   </p>
                 </div>

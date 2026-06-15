@@ -27,20 +27,20 @@ export default function Login() {
     <div className="min-h-[80vh] flex items-center justify-center px-4">
       <div className="w-full max-w-md animate-slide-up">
         <div className="text-center mb-8">
-          <h1 className="font-display text-3xl font-bold mb-2">Welcome back</h1>
-          <p className="text-slate-400">Sign in to your SmartQueue account</p>
+          <h1 className="font-display text-3xl font-bold mb-2 text-slate-900 dark:text-white">Welcome back</h1>
+          <p className="text-slate-500 dark:text-slate-400">Sign in to your SmartQueue account</p>
         </div>
 
         <div className="card">
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-sm text-slate-300 mb-1.5">Email</label>
+              <label className="block text-sm text-slate-700 dark:text-slate-350 mb-1.5 font-medium">Email</label>
               <input type="email" required className="input"
                 value={form.email} placeholder="you@example.com"
                 onChange={e => setForm(p => ({ ...p, email: e.target.value }))} />
             </div>
             <div>
-              <label className="block text-sm text-slate-300 mb-1.5">Password</label>
+              <label className="block text-sm text-slate-700 dark:text-slate-350 mb-1.5 font-medium">Password</label>
               <input type="password" required className="input"
                 value={form.password} placeholder="••••••••"
                 onChange={e => setForm(p => ({ ...p, password: e.target.value }))} />
@@ -50,15 +50,15 @@ export default function Login() {
             </button>
           </form>
 
-          <p className="text-center text-slate-400 text-sm mt-5">
+          <p className="text-center text-slate-500 dark:text-slate-400 text-sm mt-5 font-medium">
             No account?{' '}
-            <Link to="/register" className="text-brand-400 hover:text-brand-300">Register</Link>
+            <Link to="/register" className="text-brand-600 dark:text-brand-400 hover:text-brand-700 dark:hover:text-brand-300 font-semibold">Register</Link>
           </p>
 
-          <div className="border-t border-slate-700 mt-5 pt-4 text-center">
-            <p className="text-slate-500 text-xs">
+          <div className="border-t border-slate-100 dark:border-slate-800 mt-5 pt-4 text-center">
+            <p className="text-slate-500 text-xs font-medium">
               Business admin or staff?{' '}
-              <Link to="/login/admin" className="text-slate-400 hover:text-slate-300 underline underline-offset-2">
+              <Link to="/login/admin" className="text-brand-600 dark:text-slate-400 hover:text-brand-700 dark:hover:text-slate-300 underline underline-offset-2 font-semibold">
                 Staff & Admin login →
               </Link>
             </p>

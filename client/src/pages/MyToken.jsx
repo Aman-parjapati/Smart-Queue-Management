@@ -5,11 +5,11 @@ import { useSSE } from '../hooks/useSSE';
 import toast from 'react-hot-toast';
 
 const STATUS_CONFIG = {
-  pending:  { label: 'Waiting',  color: 'text-yellow-400', bg: 'bg-yellow-900/20 border-yellow-700/40' },
-  arrived:  { label: 'Checked In', color: 'text-blue-400', bg: 'bg-blue-900/20 border-blue-700/40' },
-  serving:  { label: 'Your Turn!', color: 'text-emerald-400', bg: 'bg-emerald-900/20 border-emerald-700/40' },
-  done:     { label: 'Done',     color: 'text-slate-400', bg: 'bg-slate-800' },
-  skipped:  { label: 'Skipped', color: 'text-red-400', bg: 'bg-red-900/20 border-red-700/40' },
+  pending:  { label: 'Waiting',  color: 'text-yellow-600 dark:text-yellow-400', bg: 'bg-yellow-50 dark:bg-yellow-900/20 border-yellow-200 dark:border-yellow-700/40' },
+  arrived:  { label: 'Checked In', color: 'text-amber-600 dark:text-amber-400', bg: 'bg-amber-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-700/40' },
+  serving:  { label: 'Your Turn!', color: 'text-emerald-600 dark:text-emerald-400', bg: 'bg-emerald-50 dark:bg-emerald-900/20 border-emerald-200 dark:border-emerald-700/40' },
+  done:     { label: 'Done',     color: 'text-slate-500 dark:text-slate-400', bg: 'bg-slate-100 dark:bg-slate-800 border-slate-200 dark:border-slate-700' },
+  skipped:  { label: 'Skipped', color: 'text-red-650 dark:text-red-400', bg: 'bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-700/40' },
 };
 
 export default function MyToken() {
@@ -72,11 +72,11 @@ export default function MyToken() {
           </div>
         )}
 
-        <p className="text-slate-400 text-sm mb-2">Token Number</p>
-        <div className="token-display text-white mb-2">
+        <p className="text-slate-400 dark:text-slate-550 text-sm mb-2">Token Number</p>
+        <div className="token-display text-slate-900 dark:text-white mb-2">
           #{String(booking.token_number).padStart(3, '0')}
         </div>
-        <span className={`badge ${status.bg} border ${status.color} text-base px-3 py-1`}>
+        <span className={`badge ${status.bg} border ${status.color} text-base px-3 py-1 font-bold`}>
           {status.label}
         </span>
       </div>
@@ -84,20 +84,20 @@ export default function MyToken() {
       {/* Live Queue Info */}
       <div className="grid grid-cols-3 gap-3 mb-6">
         <div className="card text-center">
-          <p className="text-2xl font-display font-bold text-white">{position ?? '—'}</p>
-          <p className="text-slate-400 text-xs mt-1">Position</p>
+          <p className="text-2xl font-display font-bold text-slate-900 dark:text-white">{position ?? '—'}</p>
+          <p className="text-slate-500 dark:text-slate-400 text-xs mt-1">Position</p>
         </div>
         <div className="card text-center">
-          <p className="text-2xl font-display font-bold text-white">
+          <p className="text-2xl font-display font-bold text-slate-900 dark:text-white">
             {nowServing ? `#${String(nowServing.token_number).padStart(3,'0')}` : '—'}
           </p>
-          <p className="text-slate-400 text-xs mt-1">Now Serving</p>
+          <p className="text-slate-500 dark:text-slate-400 text-xs mt-1">Now Serving</p>
         </div>
         <div className="card text-center">
-          <p className="text-2xl font-display font-bold text-white">
+          <p className="text-2xl font-display font-bold text-slate-900 dark:text-white">
             {waitMins > 0 ? `~${waitMins}m` : position === 1 ? 'Soon' : '—'}
           </p>
-          <p className="text-slate-400 text-xs mt-1">Est. Wait</p>
+          <p className="text-slate-500 dark:text-slate-400 text-xs mt-1">Est. Wait</p>
         </div>
       </div>
 
@@ -113,37 +113,37 @@ export default function MyToken() {
       {/* QR Code */}
       {booking.qr_code && (
         <div className="card text-center">
-          <p className="text-slate-300 font-medium mb-4">Check-in QR Code</p>
+          <p className="text-slate-800 dark:text-slate-300 font-medium mb-4">Check-in QR Code</p>
           <img
             src={booking.qr_code}
             alt="QR Code for check-in"
-            className="mx-auto rounded-xl w-48 h-48"
+            className="mx-auto rounded-xl w-48 h-48 border border-slate-100 dark:border-slate-800 p-2 bg-white"
           />
-          <p className="text-slate-500 text-xs mt-3">Show this to staff when you arrive</p>
+          <p className="text-slate-500 dark:text-slate-400 text-xs mt-3">Show this to staff when you arrive</p>
         </div>
       )}
 
       {/* Slot info */}
       <div className="card mt-4">
         <div className="flex justify-between text-sm">
-          <span className="text-slate-400">Date</span>
-          <span className="text-slate-200">{booking.slots?.date}</span>
+          <span className="text-slate-450 dark:text-slate-400">Date</span>
+          <span className="text-slate-850 dark:text-slate-200">{booking.slots?.date}</span>
         </div>
         <div className="flex justify-between text-sm mt-2">
-          <span className="text-slate-400">Time Slot</span>
-          <span className="text-slate-200 font-mono">
+          <span className="text-slate-450 dark:text-slate-400">Time Slot</span>
+          <span className="text-slate-850 dark:text-slate-200 font-mono">
             {booking.slots?.start_time?.slice(0,5)} – {booking.slots?.end_time?.slice(0,5)}
           </span>
         </div>
         <div className="flex justify-between items-center text-sm mt-2">
-          <span className="text-slate-400">Booking ID</span>
+          <span className="text-slate-450 dark:text-slate-400">Booking ID</span>
           <div className="flex items-center gap-1.5">
             <span className="text-slate-500 font-mono text-xs" title={booking.id}>
               {booking.id.slice(0,8)}…
             </span>
             <button
               onClick={handleCopy}
-              className="text-slate-500 hover:text-white transition-colors p-1 rounded-lg hover:bg-slate-800/40"
+              className="text-slate-500 hover:text-slate-800 dark:hover:text-white transition-colors p-1 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800/40"
               title="Copy full Booking ID"
             >
               {copied ? (

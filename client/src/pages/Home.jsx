@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import api from '../lib/api';
+import toast from 'react-hot-toast';
 
 const CATEGORY_ICONS = {
   clinic: '🏥', salon: '✂️', hospital: '🏨', government: '🏛️',
@@ -12,6 +13,11 @@ export default function Home() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [openFaq, setOpenFaq] = useState(null);
+
+  // Pricing inquiry modal state
+  const [inquiryPlan, setInquiryPlan] = useState(null);
+  const [inquiryForm, setInquiryForm] = useState({ name: '', email: '', phone: '', description: '' });
+  const [inquiryLoading, setInquiryLoading] = useState(false);
 
   useEffect(() => {
     api.get('/businesses')
@@ -29,27 +35,45 @@ export default function Home() {
     setOpenFaq(openFaq === index ? null : index);
   };
 
+  async function handleInquirySubmit(e) {
+    e.preventDefault();
+    setInquiryLoading(true);
+    try {
+      await api.post('/contact', {
+        ...inquiryForm,
+        plan: inquiryPlan
+      });
+      toast.success('Our executive will contact you shortly');
+      setInquiryPlan(null);
+      setInquiryForm({ name: '', email: '', phone: '', description: '' });
+    } catch (err) {
+      toast.error(err.response?.data?.error || 'Failed to send inquiry. Please try again.');
+    } finally {
+      setInquiryLoading(false);
+    }
+  }
+
   return (
-    <div className="text-slate-800 font-sans">
+    <div className="text-slate-800 dark:text-slate-100 font-sans">
       {/* ── 1. HERO SECTION ── */}
       <section className="max-w-6xl mx-auto px-4 py-16 md:py-24 grid lg:grid-cols-12 gap-12 items-center">
         <div className="lg:col-span-7 space-y-6 text-center lg:text-left">
-          <div className="inline-flex items-center gap-2 bg-blue-50 border border-blue-100 rounded-full px-4 py-1.5 text-blue-600 text-xs font-semibold tracking-wide uppercase shadow-sm">
+          <div className="inline-flex items-center gap-2 bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-900/40 rounded-full px-4 py-1.5 text-amber-600 dark:text-amber-400 text-xs font-semibold tracking-wide uppercase shadow-sm">
             <span className="relative flex h-2 w-2">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-500"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-amber-500"></span>
             </span>
             ✨ The Future of Queue Management
           </div>
           
-          <h1 className="font-display text-4xl sm:text-6xl font-black tracking-tight leading-tight text-slate-900">
+          <h1 className="font-display text-4xl sm:text-6xl font-black tracking-tight leading-tight text-slate-900 dark:text-white">
             Skip the wait.<br />
             <span className="bg-gradient-to-r from-blue-600 to-sky-500 bg-clip-text text-transparent">
               Own your time.
             </span>
           </h1>
 
-          <p className="text-slate-500 text-lg max-w-xl mx-auto lg:mx-0 leading-relaxed">
+          <p className="text-slate-500 dark:text-slate-400 text-lg max-w-xl mx-auto lg:mx-0 leading-relaxed">
             Book appointments, track queues live on your phone, and arrive exactly when it's your turn. Say goodbye to crowded waiting rooms.
           </p>
 
@@ -66,7 +90,7 @@ export default function Home() {
           </div>
 
           {/* Social Proof */}
-          <div className="flex flex-col sm:flex-row items-center gap-3 justify-center lg:justify-start pt-6 border-t border-slate-200/60 max-w-md mx-auto lg:mx-0">
+          <div className="flex flex-col sm:flex-row items-center gap-3 justify-center lg:justify-start pt-6 border-t border-surface-200/60 dark:border-surface-700/60 max-w-md mx-auto lg:mx-0">
             <div className="flex -space-x-2">
               {[
                 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=100&h=100&q=80',
@@ -77,10 +101,10 @@ export default function Home() {
                 <img key={i} className="w-8 h-8 rounded-full border-2 border-white object-cover" src={src} alt="User avatar" />
               ))}
             </div>
-            <div className="text-slate-500 text-sm">
+            <div className="text-slate-500 dark:text-slate-400 text-sm">
               <div className="flex items-center justify-center sm:justify-start gap-1">
                 <span className="text-amber-400">★★★★★</span>
-                <span className="font-semibold text-slate-800">4.8/5</span>
+                <span className="font-semibold text-slate-800 dark:text-slate-200">4.8/5</span>
               </div>
               <p className="text-xs">from 2,500+ happy customers</p>
             </div>
@@ -90,32 +114,32 @@ export default function Home() {
         {/* Hero Right: 3D-Like CSS Mockup */}
         <div className="lg:col-span-5 flex justify-center relative">
           {/* Decorative Background Blob */}
-          <div className="absolute w-72 h-72 bg-blue-100 rounded-full blur-3xl opacity-60 -z-10 top-10 right-10" />
+          <div className="absolute w-72 h-72 bg-blue-100 dark:bg-blue-950/20 rounded-full blur-3xl opacity-60 dark:opacity-30 -z-10 top-10 right-10" />
 
           {/* Mockup Container */}
           <div className="w-full max-w-md relative select-none">
             {/* Live Queue Card */}
-            <div className="bg-white rounded-2xl border border-slate-100 shadow-xl p-6 relative z-10 transition-transform duration-300 hover:scale-[1.02]">
+            <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800/80 shadow-xl p-6 relative z-10 transition-transform duration-300 hover:scale-[1.02] text-slate-900 dark:text-white">
               <div className="flex justify-between items-center mb-4">
-                <span className="badge bg-blue-50 text-blue-600 border border-blue-100 font-bold">LIVE QUEUE</span>
-                <span className="text-slate-400 text-xs">Updated 2s ago</span>
+                <span className="badge bg-amber-50 dark:bg-amber-950/40 text-amber-600 dark:text-amber-400 border border-amber-200 dark:border-amber-900/40 font-bold">LIVE QUEUE</span>
+                <span className="text-slate-400 dark:text-slate-500 text-xs">Updated 2s ago</span>
               </div>
               
-              <div className="text-center py-6 border-b border-slate-100">
-                <p className="text-slate-400 text-xs uppercase tracking-wider mb-1">Your Token</p>
-                <div className="text-5xl font-black text-slate-900 tracking-tight font-mono">
+              <div className="text-center py-6 border-b border-slate-100 dark:border-slate-800">
+                <p className="text-slate-400 dark:text-slate-500 text-xs uppercase tracking-wider mb-1">Your Token</p>
+                <div className="text-5xl font-black text-slate-900 dark:text-white tracking-tight font-mono">
                   A 045
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-4 pt-6 text-center">
                 <div>
-                  <p className="text-slate-400 text-xs">Your Position</p>
-                  <p className="text-xl font-bold text-slate-800">12 / 36</p>
+                  <p className="text-slate-400 dark:text-slate-500 text-xs">Your Position</p>
+                  <p className="text-xl font-bold text-slate-800 dark:text-slate-200">12 / 36</p>
                 </div>
                 <div>
-                  <p className="text-slate-400 text-xs">Est. Wait Time</p>
-                  <p className="text-xl font-bold text-blue-600">08 min</p>
+                  <p className="text-slate-400 dark:text-slate-500 text-xs">Est. Wait Time</p>
+                  <p className="text-xl font-bold text-amber-600 dark:text-amber-400">08 min</p>
                 </div>
               </div>
 
@@ -125,42 +149,42 @@ export default function Home() {
             </div>
 
             {/* Currently Serving Overlay Card */}
-            <div className="absolute top-[-20px] left-[-20px] bg-white border border-slate-100 shadow-lg rounded-xl p-4 flex items-center gap-3 z-20 animate-bounce-slow">
-              <div className="w-10 h-10 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold text-lg">
+            <div className="absolute top-[-20px] left-[-20px] bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 shadow-lg rounded-xl p-4 flex items-center gap-3 z-20 animate-bounce-slow">
+              <div className="w-10 h-10 rounded-full bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 flex items-center justify-center font-bold text-lg">
                 📢
               </div>
               <div>
-                <p className="text-[10px] text-slate-400 uppercase font-semibold">Currently Serving</p>
-                <p className="font-mono font-bold text-slate-800 text-sm">A 032</p>
+                <p className="text-[10px] text-slate-400 dark:text-slate-500 uppercase font-semibold">Currently Serving</p>
+                <p className="font-mono font-bold text-slate-800 dark:text-white text-sm">A 032</p>
               </div>
             </div>
 
             {/* Float details bar */}
-            <div className="absolute bottom-[-20px] right-[-20px] bg-white border border-slate-100 shadow-lg rounded-xl px-4 py-3 flex items-center gap-2 z-20">
+            <div className="absolute bottom-[-20px] right-[-20px] bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 shadow-lg rounded-xl px-4 py-3 flex items-center gap-2 z-20">
               <span className="flex h-2 w-2 relative">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
                 <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
               </span>
-              <span className="text-xs text-slate-600 font-medium">Smart Check-in Active</span>
+              <span className="text-xs text-slate-600 dark:text-slate-300 font-medium">Smart Check-in Active</span>
             </div>
           </div>
         </div>
       </section>
 
       {/* ── 2. TRUSTED BY LOGOS ── */}
-      <section className="bg-white border-y border-slate-100 py-10">
+      <section className="bg-surface-100/50 dark:bg-surface-950/50 border-y border-surface-200 dark:border-surface-700/80 py-10">
         <div className="max-w-6xl mx-auto px-4">
-          <p className="text-center text-slate-400 text-xs font-bold uppercase tracking-wider mb-6">
+          <p className="text-center text-surface-400 dark:text-surface-400 text-xs font-bold uppercase tracking-wider mb-6">
             Trusted by 100+ businesses worldwide
           </p>
           <div className="grid grid-cols-2 md:grid-cols-6 gap-6 items-center justify-items-center opacity-60">
             {[
-              { name: 'Apollo Hospital', style: 'text-emerald-700 font-extrabold' },
-              { name: 'Naturals Salon', style: 'text-purple-700 font-semibold italic' },
-              { name: 'SBI', style: 'text-blue-700 font-black' },
-              { name: 'PNB Bank', style: 'text-amber-800 font-black' },
-              { name: 'Narayana', style: 'text-rose-600 font-bold' },
-              { name: 'LIC India', style: 'text-blue-800 font-bold tracking-widest' }
+              { name: 'Apollo Hospital', style: 'text-surface-500 font-extrabold' },
+              { name: 'Naturals Salon', style: 'text-surface-400 font-semibold italic' },
+              { name: 'SBI', style: 'text-surface-500 font-black' },
+              { name: 'PNB Bank', style: 'text-amber-800 dark:text-amber-500 font-black' },
+              { name: 'Narayana', style: 'text-surface-500 font-bold' },
+              { name: 'LIC India', style: 'text-surface-500 font-bold tracking-widest' }
             ].map((logo, idx) => (
               <div key={idx} className={`text-base md:text-lg select-none ${logo.style}`}>
                 {logo.name}
@@ -173,10 +197,10 @@ export default function Home() {
       {/* ── 3. DIRECTORY & BOOKING SECTION (id="directory") ── */}
       <section id="directory" className="max-w-6xl mx-auto px-4 py-20">
         <div className="text-center max-w-2xl mx-auto mb-12">
-          <h2 className="text-3xl font-extrabold text-slate-900 tracking-tight">
+          <h2 className="text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">
             Book slots at local businesses
           </h2>
-          <p className="text-slate-500 mt-2">
+          <p className="text-slate-500 dark:text-slate-400 mt-2">
             Search for registered clinics, offices, and stores to secure your spot today.
           </p>
           
@@ -187,7 +211,7 @@ export default function Home() {
               placeholder="Search by business name or category…"
               value={search}
               onChange={e => setSearch(e.target.value)}
-              className="input pr-12 shadow-sm border-slate-200"
+              className="input pr-12 shadow-sm border-slate-200 dark:border-slate-700/65 bg-white dark:bg-slate-900"
             />
             <div className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none">
               <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
@@ -201,7 +225,7 @@ export default function Home() {
         {loading ? (
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {[...Array(3)].map((_, i) => (
-              <div key={i} className="card animate-pulse h-48 bg-white" />
+              <div key={i} className="card animate-pulse h-48 dark:bg-slate-900" />
             ))}
           </div>
         ) : filtered.length === 0 ? (
@@ -209,22 +233,22 @@ export default function Home() {
         ) : (
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {filtered.map(biz => (
-              <div key={biz.id} className="card bg-white flex flex-col justify-between">
+              <div key={biz.id} className="card flex flex-col justify-between">
                 <div>
                   <div className="flex items-start justify-between mb-4">
-                    <div className="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center text-xl shadow-inner select-none">
+                    <div className="w-10 h-10 rounded-full bg-amber-50 dark:bg-amber-950/40 flex items-center justify-center text-xl shadow-inner select-none">
                       {CATEGORY_ICONS[biz.category?.toLowerCase()] || CATEGORY_ICONS.default}
                     </div>
-                    <span className="badge bg-slate-50 text-slate-600 border border-slate-200/80 capitalize font-medium text-xs">
+                    <span className="badge bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border border-slate-200/80 dark:border-slate-700/60 capitalize font-medium text-xs">
                       {biz.category}
                     </span>
                   </div>
 
-                  <h3 className="font-display font-bold text-slate-900 text-lg mb-1">{biz.name}</h3>
-                  {biz.branch && <p className="text-slate-400 text-sm mb-1">{biz.branch}</p>}
-                  {biz.address && <p className="text-slate-400 text-xs mb-3 truncate">{biz.address}</p>}
+                  <h3 className="font-display font-bold text-slate-900 dark:text-white text-lg mb-1">{biz.name}</h3>
+                  {biz.branch && <p className="text-slate-400 dark:text-slate-500 text-sm mb-1">{biz.branch}</p>}
+                  {biz.address && <p className="text-slate-400 dark:text-slate-500 text-xs mb-3 truncate">{biz.address}</p>}
 
-                  <div className="flex items-center gap-1.5 text-slate-500 text-xs font-mono mb-4">
+                  <div className="flex items-center gap-1.5 text-slate-500 dark:text-slate-400 text-xs font-mono mb-4">
                     <svg className="w-4 h-4 text-blue-500/70" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
@@ -232,7 +256,7 @@ export default function Home() {
                   </div>
                 </div>
 
-                <div className="flex gap-3 pt-3 border-t border-slate-50 mt-2">
+                <div className="flex gap-3 pt-3 border-t border-slate-100/50 dark:border-slate-800/50 mt-2">
                   <Link
                     to={`/book/${biz.id}`}
                     className="btn-primary text-xs py-2 px-4 flex-1 font-bold tracking-wide rounded-lg text-center"
@@ -242,16 +266,16 @@ export default function Home() {
                   {biz.has_slots_today ? (
                     <Link
                       to={`/board/${biz.id}`}
-                      className="btn-secondary text-xs py-2 px-3 flex items-center justify-center gap-1 font-bold rounded-lg text-center bg-blue-50 border-blue-100 hover:bg-blue-100"
+                      className="btn-secondary text-xs py-2 px-3 flex items-center justify-center gap-1 font-bold rounded-lg text-center bg-amber-50 dark:bg-blue-950/20 border-amber-200 dark:border-amber-900/40 hover:bg-blue-100 dark:hover:bg-blue-900/30 text-amber-600 dark:text-amber-400"
                     >
                       <span className="relative flex h-1.5 w-1.5">
                         <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
-                        <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-blue-500"></span>
+                        <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-amber-500"></span>
                       </span>
                       Live
                     </Link>
                   ) : (
-                    <span className="text-slate-400 bg-slate-50 border border-slate-100 text-[11px] py-2 px-3 flex items-center justify-center gap-1 rounded-lg cursor-not-allowed select-none font-semibold">
+                    <span className="text-slate-400 dark:text-slate-500 bg-slate-50 dark:bg-surface-800 border border-slate-100 dark:border-slate-800 text-[11px] py-2 px-3 flex items-center justify-center gap-1 rounded-lg cursor-not-allowed select-none font-semibold">
                       Offline
                     </span>
                   )}
@@ -263,47 +287,47 @@ export default function Home() {
       </section>
 
       {/* ── 4. FEATURES & TRACKING SIMULATOR (id="features") ── */}
-      <section id="features" className="bg-white border-y border-slate-100 py-20">
+      <section id="features" className="bg-surface-100/50 dark:bg-surface-950/50 border-y border-surface-200 dark:border-surface-700/80 py-20">
         <div className="max-w-6xl mx-auto px-4 grid lg:grid-cols-12 gap-12 items-center">
           {/* Left Column: Live updates simulator box */}
           <div className="lg:col-span-5 flex justify-center">
-            <div className="w-full max-w-sm bg-slate-50 border border-slate-100 rounded-2xl shadow-inner p-6 relative">
+            <div className="w-full max-w-sm bg-surface-100 dark:bg-surface-900/60 border border-slate-100 dark:border-slate-800 rounded-2xl shadow-inner p-6 relative">
               <div className="flex justify-between items-center mb-6">
                 <span className="text-xs uppercase font-bold text-slate-400">Live Status Tracker</span>
-                <span className="flex items-center gap-1.5 text-xs text-blue-600 font-bold bg-blue-50 border border-blue-100 px-2 py-0.5 rounded-full">
+                <span className="flex items-center gap-1.5 text-xs text-amber-600 dark:text-amber-400 font-bold bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-900/40 px-2 py-0.5 rounded-full">
                   📢 Serving
                 </span>
               </div>
 
               {/* Status values */}
               <div className="space-y-4">
-                <div className="bg-white border border-slate-100 p-4 rounded-xl shadow-sm">
-                  <p className="text-[10px] text-slate-400 uppercase tracking-wider font-semibold">Currently Serving</p>
-                  <p className="text-3xl font-black text-slate-900 tracking-tight font-mono mt-1">A 041</p>
+                <div className="bg-white dark:bg-surface-800 border border-surface-200 dark:border-surface-700/60 p-4 rounded-xl shadow-sm">
+                  <p className="text-[10px] text-slate-400 dark:text-slate-500 uppercase tracking-wider font-semibold">Currently Serving</p>
+                  <p className="text-3xl font-black text-slate-900 dark:text-white tracking-tight font-mono mt-1">A 041</p>
                 </div>
 
-                <div className="bg-white border border-slate-100 p-4 rounded-xl shadow-sm">
+                <div className="bg-white dark:bg-surface-800 border border-surface-200 dark:border-surface-700/60 p-4 rounded-xl shadow-sm">
                   <div className="grid grid-cols-2 gap-2">
                     <div>
-                      <p className="text-[10px] text-slate-400 uppercase font-semibold">Your Token</p>
-                      <p className="text-xl font-bold font-mono text-slate-800">A 045</p>
+                      <p className="text-[10px] text-slate-400 dark:text-slate-500 uppercase font-semibold">Your Token</p>
+                      <p className="text-xl font-bold font-mono text-slate-855 dark:text-slate-200">A 045</p>
                     </div>
                     <div>
-                      <p className="text-[10px] text-slate-400 uppercase font-semibold">Your Position</p>
-                      <p className="text-xl font-bold text-slate-800">12 / 36</p>
+                      <p className="text-[10px] text-slate-400 dark:text-slate-500 uppercase font-semibold">Your Position</p>
+                      <p className="text-xl font-bold text-slate-855 dark:text-slate-200">12 / 36</p>
                     </div>
                   </div>
                   <div className="mt-3">
-                    <p className="text-[10px] text-slate-400 font-semibold mb-1">Queue Progress</p>
-                    <div className="w-full h-2 bg-slate-100 rounded-full overflow-hidden">
-                      <div className="h-full bg-blue-600 rounded-full transition-all duration-500" style={{ width: '33%' }}></div>
+                    <p className="text-[10px] text-slate-400 dark:text-slate-500 font-semibold mb-1">Queue Progress</p>
+                    <div className="w-full h-2 bg-surface-200 dark:bg-surface-700 rounded-full overflow-hidden">
+                      <div className="h-full bg-amber-500 rounded-full transition-all duration-500" style={{ width: '33%' }}></div>
                     </div>
                   </div>
                 </div>
 
-                <div className="bg-white border border-slate-100 p-4 rounded-xl shadow-sm text-center">
-                  <p className="text-xs text-slate-500">Estimated Wait Time</p>
-                  <p className="text-2xl font-bold text-blue-600 mt-1">08 Minutes</p>
+                <div className="bg-white dark:bg-surface-800 border border-surface-200 dark:border-surface-700/60 p-4 rounded-xl shadow-sm text-center">
+                  <p className="text-xs text-slate-500 dark:text-slate-400">Estimated Wait Time</p>
+                  <p className="text-2xl font-bold text-amber-600 dark:text-amber-400 mt-1">08 Minutes</p>
                 </div>
               </div>
             </div>
@@ -312,8 +336,8 @@ export default function Home() {
           {/* Right Column: Features Grid */}
           <div className="lg:col-span-7 space-y-8">
             <div>
-              <p className="text-blue-600 text-xs font-extrabold uppercase tracking-widest mb-2">Queue management features</p>
-              <h2 className="text-3xl font-extrabold text-slate-900 tracking-tight">
+              <p className="text-amber-600 dark:text-amber-400 text-xs font-extrabold uppercase tracking-widest mb-2">Queue management features</p>
+              <h2 className="text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">
                 Powerful features for smarter queue management
               </h2>
             </div>
@@ -328,12 +352,12 @@ export default function Home() {
                 { title: 'Multi-Branch Support', desc: 'Manage slots and capacity across multiple stores seamlessly.', icon: '🏢' }
               ].map((f, i) => (
                 <div key={i} className="flex gap-4 items-start">
-                  <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center text-xl shrink-0">
+                  <div className="w-10 h-10 rounded-xl bg-amber-50 dark:bg-amber-950/40 flex items-center justify-center text-xl shrink-0">
                     {f.icon}
                   </div>
                   <div>
-                    <h3 className="font-bold text-slate-800 text-sm mb-1">{f.title}</h3>
-                    <p className="text-slate-500 text-xs leading-relaxed">{f.desc}</p>
+                    <h3 className="font-bold text-slate-800 dark:text-slate-200 text-sm mb-1">{f.title}</h3>
+                    <p className="text-slate-500 dark:text-slate-400 text-xs leading-relaxed">{f.desc}</p>
                   </div>
                 </div>
               ))}
@@ -345,9 +369,9 @@ export default function Home() {
       {/* ── 5. HOW IT WORKS ── */}
       <section id="how-it-works" className="max-w-6xl mx-auto px-4 py-20">
         <div className="text-center max-w-2xl mx-auto mb-16">
-          <p className="text-blue-600 text-xs font-bold uppercase tracking-widest mb-2">How it works</p>
-          <h2 className="text-3xl font-extrabold text-slate-900 tracking-tight">Three simple steps</h2>
-          <p className="text-slate-500 mt-2">From booking to being served, we make it seamless.</p>
+          <p className="text-amber-600 dark:text-amber-400 text-xs font-bold uppercase tracking-widest mb-2">How it works</p>
+          <h2 className="text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">Three simple steps</h2>
+          <p className="text-slate-500 dark:text-slate-400 mt-2">From booking to being served, we make it seamless.</p>
         </div>
 
         <div className="grid md:grid-cols-3 gap-8 relative">
@@ -356,40 +380,40 @@ export default function Home() {
             { step: '2', title: 'Track in Real-Time', desc: 'Monitor the live board. Get alerts before your turn.', icon: '📱' },
             { step: '3', title: 'Arrive & Get Served', desc: 'Scan check-in and get served without any wait.', icon: '👍' }
           ].map((s, i) => (
-            <div key={i} className="card bg-white text-center p-8 relative flex flex-col items-center">
-              <div className="absolute top-4 left-4 w-6 h-6 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold text-xs">
+            <div key={i} className="card text-center p-8 relative flex flex-col items-center">
+              <div className="absolute top-4 left-4 w-6 h-6 rounded-full bg-brand-600 text-white flex items-center justify-center font-bold text-xs">
                 {s.step}
               </div>
-              <div className="w-16 h-16 rounded-full bg-blue-50 text-3xl flex items-center justify-center mb-6">
+              <div className="w-16 h-16 rounded-full bg-amber-50 dark:bg-amber-950/40 text-3xl flex items-center justify-center mb-6">
                 {s.icon}
               </div>
-              <h3 className="font-bold text-slate-900 text-lg mb-2">{s.title}</h3>
-              <p className="text-slate-500 text-sm leading-relaxed">{s.desc}</p>
+              <h3 className="font-bold text-slate-900 dark:text-white text-lg mb-2">{s.title}</h3>
+              <p className="text-slate-500 dark:text-slate-400 text-sm leading-relaxed">{s.desc}</p>
             </div>
           ))}
         </div>
       </section>
 
       {/* ── 6. ANALYTICS SAAS DASHBOARD MOCKUP ── */}
-      <section className="bg-white border-y border-slate-100 py-20">
+      <section className="bg-surface-100/50 dark:bg-surface-950/50 border-y border-surface-200 dark:border-surface-700/80 py-20">
         <div className="max-w-6xl mx-auto px-4 grid lg:grid-cols-12 gap-12 items-center">
           <div className="lg:col-span-6 space-y-6">
-            <p className="text-blue-600 text-xs font-extrabold uppercase tracking-widest">Analytics & Insights</p>
-            <h2 className="text-3xl font-extrabold text-slate-900 tracking-tight">
+            <p className="text-amber-600 dark:text-amber-400 text-xs font-extrabold uppercase tracking-widest">Analytics & Insights</p>
+            <h2 className="text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">
               Data that helps you serve better
             </h2>
-            <p className="text-slate-500 leading-relaxed">
+            <p className="text-slate-500 dark:text-slate-400 leading-relaxed">
               Understand peak hours, average customer visit times, daily queue volume, and staff operational efficiency.
             </p>
 
-            <ul className="space-y-3 pt-2 text-sm text-slate-650 font-medium">
+            <ul className="space-y-3 pt-2 text-sm text-slate-650 dark:text-slate-300 font-medium">
               {[
                 'Real-time queue analytics and reports',
                 'Identify peak hours and optimize staff allocation',
                 'Monitor customer check-in vs check-out speed',
                 'Download summaries and analytics charts with one click'
               ].map((item, i) => (
-                <li key={i} className="flex items-center gap-2.5">
+                <li key={i} className="flex items-center gap-2.5 text-slate-800 dark:text-slate-200">
                   <span className="text-blue-500 font-bold">✓</span>
                   {item}
                 </li>
@@ -399,32 +423,32 @@ export default function Home() {
 
           {/* SaaS Analytics Board CSS illustration */}
           <div className="lg:col-span-6 flex justify-center">
-            <div className="w-full max-w-lg bg-slate-50 border border-slate-200/60 rounded-2xl shadow-xl overflow-hidden">
-              <div className="bg-white border-b border-slate-200/60 px-4 py-3 flex items-center justify-between">
-                <span className="text-xs font-bold text-slate-600">SmartQueue Dashboard</span>
-                <span className="badge bg-emerald-50 text-emerald-600 border border-emerald-100 text-[10px]">Active</span>
+            <div className="w-full max-w-lg bg-surface-100 dark:bg-surface-900/60 border border-surface-200/60 dark:border-surface-700/60 rounded-2xl shadow-xl overflow-hidden">
+              <div className="bg-white dark:bg-surface-800 border-b border-surface-200/60 dark:border-surface-700/60 px-4 py-3 flex items-center justify-between">
+                <span className="text-xs font-bold text-slate-600 dark:text-slate-300">SmartQueue Dashboard</span>
+                <span className="badge bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-450 border border-emerald-100 dark:border-emerald-900/40 text-[10px]">Active</span>
               </div>
               <div className="p-6 space-y-6">
                 {/* Stats grid */}
                 <div className="grid grid-cols-2 gap-4">
                   {[
-                    { label: 'Customers Served', val: '1,248', change: '+12% this week', color: 'text-blue-600' },
-                    { label: 'Avg. Service Time', val: '12 min', change: '-2m optimization', color: 'text-indigo-600' }
+                    { label: 'Customers Served', val: '1,248', change: '+12% this week', color: 'text-amber-600 dark:text-amber-400' },
+                    { label: 'Avg. Service Time', val: '12 min', change: '-2m optimization', color: 'text-indigo-650 dark:text-indigo-400' }
                   ].map((stat, i) => (
-                    <div key={i} className="bg-white border border-slate-200/60 p-4 rounded-xl shadow-sm">
-                      <p className="text-[10px] text-slate-400 font-semibold uppercase">{stat.label}</p>
+                    <div key={i} className="bg-white dark:bg-surface-800 border border-surface-200/60 dark:border-surface-700/60 p-4 rounded-xl shadow-sm">
+                      <p className="text-[10px] text-slate-400 dark:text-slate-500 font-semibold uppercase">{stat.label}</p>
                       <p className={`text-2xl font-bold ${stat.color} mt-1`}>{stat.val}</p>
-                      <p className="text-[10px] text-slate-400 mt-1">{stat.change}</p>
+                      <p className="text-[10px] text-slate-400 dark:text-slate-500 mt-1">{stat.change}</p>
                     </div>
                   ))}
                 </div>
 
                 {/* SVG mock graph */}
-                <div className="bg-white border border-slate-200/60 p-4 rounded-xl shadow-sm">
-                  <p className="text-[10px] text-slate-400 font-semibold uppercase mb-3">Daily Queue Traffic</p>
+                <div className="bg-white dark:bg-surface-800 border border-surface-200/60 dark:border-surface-700/60 p-4 rounded-xl shadow-sm">
+                  <p className="text-[10px] text-slate-400 dark:text-slate-500 font-semibold uppercase mb-3">Daily Queue Traffic</p>
                   <div className="h-24 flex items-end justify-between gap-2">
                     {[30, 45, 35, 60, 80, 55, 70, 90, 65, 80].map((val, i) => (
-                      <div key={i} className="flex-1 bg-blue-100 rounded-t-sm hover:bg-blue-600 transition-colors" style={{ height: `${val}%` }}></div>
+                      <div key={i} className="flex-1 bg-blue-100 dark:bg-amber-950/40 rounded-t-sm hover:bg-amber-500 dark:hover:bg-amber-500 transition-colors" style={{ height: `${val}%` }}></div>
                     ))}
                   </div>
                 </div>
@@ -437,62 +461,72 @@ export default function Home() {
       {/* ── 7. PRICING SECTIONS (id="pricing") ── */}
       <section id="pricing" className="max-w-6xl mx-auto px-4 py-20">
         <div className="text-center max-w-2xl mx-auto mb-16">
-          <p className="text-blue-600 text-xs font-bold uppercase tracking-widest mb-2">Pricing Plans</p>
-          <h2 className="text-3xl font-extrabold text-slate-900 tracking-tight">Simple pricing for every business</h2>
-          <p className="text-slate-500 mt-2">Choose the plan that fits your business scale. Cancel anytime.</p>
+          <p className="text-amber-600 dark:text-amber-400 text-xs font-bold uppercase tracking-widest mb-2">Pricing Plans</p>
+          <h2 className="text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">Simple pricing for every business</h2>
+          <p className="text-slate-500 dark:text-slate-400 mt-2">Choose the plan that fits your business scale. Cancel anytime.</p>
         </div>
 
         <div className="grid md:grid-cols-3 gap-8 items-stretch">
           {/* Plan 1 */}
-          <div className="card bg-white flex flex-col justify-between p-8 border-slate-100 relative">
+          <div className="card flex flex-col justify-between p-8 border-surface-200/60 dark:border-surface-700/80 relative">
             <div>
-              <p className="text-slate-400 text-xs font-bold uppercase tracking-wider mb-2">Starter</p>
+              <p className="text-slate-400 dark:text-slate-500 text-xs font-bold uppercase tracking-wider mb-2">Starter</p>
               <div className="flex items-baseline gap-1 mb-6">
-                <span className="text-4xl font-extrabold text-slate-900">₹999</span>
-                <span className="text-slate-400 text-sm">/month</span>
+                <span className="text-4xl font-extrabold text-slate-900 dark:text-white">₹999</span>
+                <span className="text-slate-400 dark:text-slate-500 text-sm">/month</span>
               </div>
-              <ul className="space-y-3 text-slate-500 text-sm mb-8">
+              <ul className="space-y-3 text-slate-500 dark:text-slate-400 text-sm mb-8">
                 <li>✓ 1 Branch</li>
                 <li>✓ 1,000 Tokens/Month</li>
                 <li>✓ Basic Live Board</li>
                 <li>✓ Email Support</li>
               </ul>
             </div>
-            <button className="btn-secondary w-full py-2.5 rounded-xl border border-slate-200">Get Started</button>
+            <button
+              onClick={() => setInquiryPlan('Starter')}
+              className="btn-secondary w-full py-2.5 rounded-xl border border-slate-200 dark:border-slate-700"
+            >
+              Get Started
+            </button>
           </div>
 
           {/* Plan 2: Business (Popular) */}
-          <div className="card bg-white flex flex-col justify-between p-8 border-blue-500 shadow-xl relative scale-105 z-10">
-            <div className="absolute top-0 right-1/2 translate-x-1/2 -translate-y-1/2 bg-blue-600 text-white text-[10px] font-bold tracking-widest uppercase px-3 py-1 rounded-full">
+          <div className="card flex flex-col justify-between p-8 border-blue-500 shadow-xl relative scale-105 z-10">
+            <div className="absolute top-0 right-1/2 translate-x-1/2 -translate-y-1/2 bg-amber-500 text-white text-[10px] font-bold tracking-widest uppercase px-3 py-1 rounded-full">
               POPULAR
             </div>
             <div>
-              <p className="text-blue-600 text-xs font-bold uppercase tracking-wider mb-2">Business</p>
+              <p className="text-amber-600 dark:text-amber-400 text-xs font-bold uppercase tracking-wider mb-2">Business</p>
               <div className="flex items-baseline gap-1 mb-6">
-                <span className="text-4xl font-extrabold text-slate-900">₹2,499</span>
-                <span className="text-slate-400 text-sm">/month</span>
+                <span className="text-4xl font-extrabold text-slate-900 dark:text-white">₹2,499</span>
+                <span className="text-slate-400 dark:text-slate-500 text-sm">/month</span>
               </div>
-              <ul className="space-y-3 text-slate-500 text-sm mb-8">
-                <li className="font-medium text-slate-800">✓ 5 Branches</li>
-                <li className="font-medium text-slate-800">✓ 5,000 Tokens/Month</li>
+              <ul className="space-y-3 text-slate-500 dark:text-slate-400 text-sm mb-8">
+                <li className="font-medium text-slate-800 dark:text-slate-200">✓ 5 Branches</li>
+                <li className="font-medium text-slate-800 dark:text-slate-200">✓ 5,005 Tokens/Month</li>
                 <li>✓ Custom Board Themes</li>
                 <li>✓ SMS & Email Alerts</li>
                 <li>✓ Analytics Dashboard</li>
                 <li>✓ Priority Support</li>
               </ul>
             </div>
-            <button className="btn-primary w-full py-3 rounded-xl shadow-lg shadow-blue-500/20">Get Started</button>
+            <button
+              onClick={() => setInquiryPlan('Business')}
+              className="btn-primary w-full py-3 rounded-xl shadow-lg shadow-blue-500/20"
+            >
+              Get Started
+            </button>
           </div>
 
           {/* Plan 3 */}
-          <div className="card bg-white flex flex-col justify-between p-8 border-slate-100">
+          <div className="card flex flex-col justify-between p-8 border-surface-200/60 dark:border-surface-700/80">
             <div>
-              <p className="text-slate-400 text-xs font-bold uppercase tracking-wider mb-2">Enterprise</p>
+              <p className="text-slate-400 dark:text-slate-500 text-xs font-bold uppercase tracking-wider mb-2">Enterprise</p>
               <div className="flex items-baseline gap-1 mb-6">
-                <span className="text-3xl font-extrabold text-slate-900">Custom</span>
-                <span className="text-slate-400 text-sm">pricing</span>
+                <span className="text-3xl font-extrabold text-slate-900 dark:text-white">Custom</span>
+                <span className="text-slate-400 dark:text-slate-500 text-sm">pricing</span>
               </div>
-              <ul className="space-y-3 text-slate-500 text-sm mb-8">
+              <ul className="space-y-3 text-slate-500 dark:text-slate-400 text-sm mb-8">
                 <li>✓ Unlimited Branches</li>
                 <li>✓ Unlimited Tokens</li>
                 <li>✓ Dedicated Server Support</li>
@@ -501,18 +535,23 @@ export default function Home() {
                 <li>✓ 24/7 Phone Support</li>
               </ul>
             </div>
-            <button className="btn-secondary w-full py-2.5 rounded-xl border border-slate-200">Contact Sales</button>
+            <button
+              onClick={() => setInquiryPlan('Enterprise')}
+              className="btn-secondary w-full py-2.5 rounded-xl border border-slate-200 dark:border-slate-700"
+            >
+              Contact Sales
+            </button>
           </div>
         </div>
       </section>
 
       {/* ── 8. FAQS SECTION (id="faq") ── */}
-      <section id="faq" className="bg-white border-t border-slate-100 py-20">
+      <section id="faq" className="bg-surface-100 dark:bg-surface-950 py-20">
         <div className="max-w-4xl mx-auto px-4">
           <div className="text-center mb-12">
-            <p className="text-blue-600 text-xs font-bold uppercase tracking-widest mb-2">FAQ</p>
-            <h2 className="text-3xl font-extrabold text-slate-900 tracking-tight">Frequently asked questions</h2>
-            <p className="text-slate-500 mt-2">Have a question? We have answered the most common questions here.</p>
+            <p className="text-amber-600 dark:text-amber-400 text-xs font-bold uppercase tracking-widest mb-2">FAQ</p>
+            <h2 className="text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">Frequently asked questions</h2>
+            <p className="text-slate-500 dark:text-slate-400 mt-2">Have a question? We have answered the most common questions here.</p>
           </div>
 
           <div className="space-y-4">
@@ -522,26 +561,117 @@ export default function Home() {
               { q: 'Is there a mobile app?', a: 'SmartQueue is fully responsive and functions exactly like a native app on all mobile web browsers. Users do not need to download anything to check tokens or track queues.' },
               { q: 'Can I customize my queue flow?', a: 'Absolutely. As a staff administrator, you can configure average service times per client, total capacities per slot, edit slot details, or trigger immediate queue updates.' }
             ].map((faq, i) => (
-              <div key={i} className="border-b border-slate-100 pb-4">
+              <div key={i} className="bg-white dark:bg-surface-900 border border-surface-200 dark:border-surface-700 rounded-xl p-6">
                 <button
                   onClick={() => toggleFaq(i)}
-                  className="w-full flex justify-between items-center text-left py-3 font-semibold text-slate-800 hover:text-blue-600 transition-colors text-base"
+                  className="w-full flex justify-between items-center text-left font-semibold text-slate-800 dark:text-slate-200 hover:text-amber-600 dark:hover:text-blue-400 transition-colors text-base"
                 >
                   <span>{faq.q}</span>
-                  <span className="text-xl font-mono text-slate-400 select-none">
+                  <span className={`text-xl font-mono text-slate-400 dark:text-slate-500 select-none transition-transform duration-300 ${openFaq === i ? 'rotate-180' : ''}`}>
                     {openFaq === i ? '−' : '+'}
                   </span>
                 </button>
-                {openFaq === i && (
-                  <p className="text-slate-500 text-sm leading-relaxed mt-2 animate-fade-in pl-1">
-                    {faq.a}
-                  </p>
-                )}
+                <div
+                  className={`grid transition-all duration-300 ease-in-out overflow-hidden ${
+                    openFaq === i ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'
+                  }`}
+                >
+                  <div className="min-h-0">
+                    <p className="text-slate-500 dark:text-slate-400 text-sm leading-relaxed pt-3">
+                      {faq.a}
+                    </p>
+                  </div>
+                </div>
               </div>
             ))}
           </div>
         </div>
       </section>
+
+      {/* ── PRICING INQUIRY DIALOG ── */}
+      {inquiryPlan && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in">
+          <div className="bg-white dark:bg-surface-900 border border-surface-200 dark:border-surface-700 rounded-2xl w-full max-w-md shadow-2xl overflow-hidden animate-slide-up">
+            <div className="bg-slate-50 dark:bg-surface-800 px-6 py-4 border-b border-surface-200/60 dark:border-surface-700/80 flex items-center justify-between">
+              <div>
+                <h3 className="font-display font-bold text-slate-900 dark:text-white text-lg">Inquire: {inquiryPlan} Plan</h3>
+                <p className="text-xs text-slate-400 dark:text-slate-500">Please provide your details below</p>
+              </div>
+              <button
+                onClick={() => setInquiryPlan(null)}
+                className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors text-xl font-semibold p-1"
+                type="button"
+              >
+                ✕
+              </button>
+            </div>
+            
+            <form onSubmit={handleInquirySubmit} className="p-6 space-y-4">
+              <div>
+                <label className="block text-xs text-slate-600 dark:text-slate-400 mb-1.5 font-bold uppercase tracking-wider">Name</label>
+                <input
+                  type="text"
+                  required
+                  placeholder="Your Name"
+                  className="input text-sm"
+                  value={inquiryForm.name}
+                  onChange={e => setInquiryForm(p => ({ ...p, name: e.target.value }))}
+                />
+              </div>
+              <div>
+                <label className="block text-xs text-slate-600 dark:text-slate-400 mb-1.5 font-bold uppercase tracking-wider">Email Address</label>
+                <input
+                  type="email"
+                  required
+                  placeholder="you@example.com"
+                  className="input text-sm"
+                  value={inquiryForm.email}
+                  onChange={e => setInquiryForm(p => ({ ...p, email: e.target.value }))}
+                />
+              </div>
+              <div>
+                <label className="block text-xs text-slate-600 dark:text-slate-400 mb-1.5 font-bold uppercase tracking-wider">Mobile Number</label>
+                <input
+                  type="tel"
+                  required
+                  placeholder="e.g. +91 99999 99999"
+                  className="input text-sm"
+                  value={inquiryForm.phone}
+                  onChange={e => setInquiryForm(p => ({ ...p, phone: e.target.value }))}
+                />
+              </div>
+              <div>
+                <label className="block text-xs text-slate-600 dark:text-slate-400 mb-1.5 font-bold uppercase tracking-wider">Description / Message</label>
+                <textarea
+                  required
+                  rows="3"
+                  placeholder="How can we help you? Describe your business requirements..."
+                  className="input text-sm resize-none"
+                  value={inquiryForm.description}
+                  onChange={e => setInquiryForm(p => ({ ...p, description: e.target.value }))}
+                />
+              </div>
+              
+              <div className="flex gap-3 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setInquiryPlan(null)}
+                  className="btn-secondary flex-1 py-2.5 text-sm"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={inquiryLoading}
+                  className="btn-primary flex-1 py-2.5 text-sm"
+                >
+                  {inquiryLoading ? 'Sending…' : 'Send'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

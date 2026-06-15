@@ -23,10 +23,10 @@ function AnalyticsPanel({ businessId }) {
 
   const { summary, hourCounts } = data;
   const stats = [
-    { label: 'Total', value: summary.total, color: 'text-white' },
-    { label: 'Served', value: summary.done, color: 'text-emerald-400' },
-    { label: 'Pending', value: summary.pending, color: 'text-yellow-400' },
-    { label: 'Skipped', value: summary.skipped, color: 'text-red-400' },
+    { label: 'Total', value: summary.total, color: 'text-slate-900 dark:text-white' },
+    { label: 'Served', value: summary.done, color: 'text-emerald-600 dark:text-emerald-400' },
+    { label: 'Pending', value: summary.pending, color: 'text-yellow-600 dark:text-yellow-400' },
+    { label: 'Skipped', value: summary.skipped, color: 'text-red-650 dark:text-red-400' },
   ];
 
   return (
@@ -34,9 +34,9 @@ function AnalyticsPanel({ businessId }) {
       <h3 className="font-display font-semibold text-lg mb-4">Today's Analytics</h3>
       <div className="grid grid-cols-4 gap-3 mb-5">
         {stats.map(s => (
-          <div key={s.label} className="bg-surface-900 rounded-xl p-3 text-center">
+          <div key={s.label} className="bg-slate-50 dark:bg-surface-900 border border-slate-200/60 dark:border-slate-800/80 rounded-xl p-3 text-center">
             <p className={`text-2xl font-display font-bold ${s.color}`}>{s.value}</p>
-            <p className="text-slate-500 text-xs mt-1">{s.label}</p>
+            <p className="text-slate-500 dark:text-slate-500 text-xs mt-1">{s.label}</p>
           </div>
         ))}
       </div>
@@ -178,27 +178,27 @@ function SlotsManager({ businessId, slots = [], onRefresh }) {
               const isEditing = editingId === slot.id;
 
               return (
-                <div key={slot.id} className="bg-surface-900 border border-slate-800/80 rounded-xl p-4 transition-all">
+                <div key={slot.id} className="bg-slate-50 dark:bg-surface-900 border border-slate-100 dark:border-slate-800/80 rounded-xl p-4 transition-all">
                   {isEditing ? (
                     <div className="space-y-3">
                       <div className="flex items-center justify-between mb-1 select-none">
-                        <span className="text-xs font-bold text-slate-400 uppercase tracking-wide">Editing Slot {idx + 1}</span>
-                        <span className="text-xs text-slate-500">{slot.booked_count} Booked</span>
+                        <span className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide">Editing Slot {idx + 1}</span>
+                        <span className="text-xs text-slate-400 dark:text-slate-500">{slot.booked_count} Booked</span>
                       </div>
                       <div className="grid grid-cols-2 gap-2">
                         <div>
-                          <label className="block text-[10px] text-slate-500 mb-0.5">Start Time</label>
+                          <label className="block text-[10px] text-slate-400 dark:text-slate-500 mb-0.5">Start Time</label>
                           <input type="time" className="input text-xs py-1.5 px-2.5" value={editForm.start_time}
                             onChange={e => setEditForm(p => ({ ...p, start_time: e.target.value }))} />
                         </div>
                         <div>
-                          <label className="block text-[10px] text-slate-500 mb-0.5">End Time</label>
+                          <label className="block text-[10px] text-slate-400 dark:text-slate-500 mb-0.5">End Time</label>
                           <input type="time" className="input text-xs py-1.5 px-2.5" value={editForm.end_time}
                             onChange={e => setEditForm(p => ({ ...p, end_time: e.target.value }))} />
                         </div>
                       </div>
                       <div>
-                        <label className="block text-[10px] text-slate-500 mb-0.5">Max Capacity</label>
+                        <label className="block text-[10px] text-slate-400 dark:text-slate-500 mb-0.5">Max Capacity</label>
                         <input type="number" className="input text-xs py-1.5 px-2.5" value={editForm.max_capacity}
                           onChange={e => setEditForm(p => ({ ...p, max_capacity: parseInt(e.target.value) || 20 }))} />
                       </div>
@@ -215,32 +215,32 @@ function SlotsManager({ businessId, slots = [], onRefresh }) {
                     <div className="flex items-center justify-between gap-4">
                       <div>
                         <div className="flex items-center gap-2 mb-1 select-none">
-                          <span className="text-[10px] font-bold bg-slate-800 text-slate-400 px-1.5 py-0.5 rounded uppercase tracking-wider">
+                          <span className="text-[10px] font-bold bg-slate-200/60 dark:bg-slate-800 text-slate-600 dark:text-slate-400 px-1.5 py-0.5 rounded uppercase tracking-wider">
                             Slot {idx + 1}
                           </span>
                           {slot.booked_count >= slot.max_capacity ? (
-                            <span className="badge bg-red-950/40 text-red-400 text-[10px]">Full</span>
+                            <span className="badge bg-red-50 dark:bg-red-950/40 text-red-600 dark:text-red-400 text-[10px]">Full</span>
                           ) : (
-                            <span className="badge bg-emerald-950/40 text-emerald-450 text-[10px]">Active</span>
+                            <span className="badge bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-450 text-[10px]">Active</span>
                           )}
                         </div>
-                        <p className="font-mono text-base font-bold text-white tracking-wide">
+                        <p className="font-mono text-base font-bold text-slate-900 dark:text-white tracking-wide">
                           {slot.start_time.slice(0, 5)} – {slot.end_time.slice(0, 5)}
                         </p>
-                        <p className="text-xs text-slate-400 mt-1 select-none">
+                        <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 select-none">
                           {slot.booked_count} / {slot.max_capacity} booked
                         </p>
                       </div>
                       <div className="flex gap-2 select-none">
                         <button
                           onClick={() => startEdit(slot)}
-                          className="text-xs bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white px-3 py-1.5 rounded-lg transition-colors border border-slate-700/50"
+                          className="text-xs bg-white hover:bg-slate-100 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white px-3 py-1.5 rounded-lg transition-colors border border-slate-200 dark:border-slate-700/50"
                         >
                           Edit
                         </button>
                         <button
                           onClick={() => setDeletingSlot(slot)}
-                          className="text-xs bg-red-950/20 hover:bg-red-900/30 text-red-400 hover:text-red-300 px-3 py-1.5 rounded-lg transition-colors border border-red-900/20"
+                          className="text-xs bg-red-50 hover:bg-red-100 dark:bg-red-950/20 dark:hover:bg-red-900/30 text-red-600 dark:text-red-400 hover:text-red-750 dark:hover:text-red-300 px-3 py-1.5 rounded-lg transition-colors border border-red-200/30 dark:border-red-900/20"
                         >
                           Delete
                         </button>
@@ -351,7 +351,7 @@ function QueueControl({ slotId, queue, slots = [], activeSlot = null, setActiveS
       </div>
 
       {slots.length > 1 && (
-        <div className="mb-5 bg-surface-950 p-3.5 rounded-xl border border-slate-800/60">
+        <div className="mb-5 bg-slate-50 dark:bg-surface-950 p-3.5 rounded-xl border border-slate-200/60 dark:border-slate-800/60">
           <label className="block text-xs text-slate-400 mb-3 font-semibold uppercase tracking-wider">Select Time Slot to Manage</label>
           <div className="grid grid-cols-2 gap-3">
             {slots.map((s, index) => (
@@ -361,16 +361,16 @@ function QueueControl({ slotId, queue, slots = [], activeSlot = null, setActiveS
                 onClick={() => setActiveSlot(s)}
                 className={`px-4 py-3 rounded-xl text-left transition-all border flex flex-col justify-between h-[90px]
                   ${activeSlot?.id === s.id
-                    ? 'bg-brand-600/10 border-brand-500 text-white shadow-lg shadow-brand-600/5'
-                    : 'bg-slate-900 border-slate-800 text-slate-400 hover:text-white hover:border-slate-700'}`}
+                    ? 'bg-brand-600/10 border-brand-500 text-brand-600 dark:text-brand-300 shadow-lg shadow-brand-600/5'
+                    : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:border-slate-300 dark:hover:border-slate-700'}`}
               >
-                <span className="text-[10px] uppercase tracking-wider text-slate-500 font-bold">
+                <span className="text-[10px] uppercase tracking-wider text-slate-400 dark:text-slate-500 font-bold">
                   Slot {index + 1}
                 </span>
-                <span className="font-mono text-sm font-bold text-white leading-none my-1">
+                <span className="font-mono text-sm font-bold text-slate-950 dark:text-white leading-none my-1">
                   {s.start_time.slice(0, 5)} – {s.end_time.slice(0, 5)}
                 </span>
-                <span className="text-[11px] text-slate-400">
+                <span className="text-[11px] text-slate-500 dark:text-slate-400">
                   {s.booked_count} Booked
                 </span>
               </button>
@@ -380,14 +380,14 @@ function QueueControl({ slotId, queue, slots = [], activeSlot = null, setActiveS
       )}
 
       {serving && (
-        <div className="bg-emerald-900/20 border border-emerald-700/40 rounded-xl p-4 mb-4 flex items-center justify-between gap-4">
+        <div className="bg-emerald-900/10 dark:bg-emerald-900/20 border border-emerald-600/20 dark:border-emerald-700/40 rounded-xl p-4 mb-4 flex items-center justify-between gap-4">
           <div>
-            <p className="text-emerald-400 text-xs uppercase tracking-widest mb-1">Now Serving</p>
-            <p className="font-mono text-2xl font-bold text-white mb-1">
-              #{String(serving.token_number).padStart(3,'0')}
+            <p className="text-emerald-600 dark:text-emerald-400 text-xs uppercase tracking-widest mb-1">Now Serving</p>
+            <p className="font-mono text-2xl font-bold text-slate-950 dark:text-white mb-1">
+              #{String(serving.token_number).padStart(3, '0')}
             </p>
-            <p className="text-slate-300 text-sm">
-              Customer: <span className="text-white font-medium">{serving.users?.name || '—'}</span>
+            <p className="text-slate-650 dark:text-slate-300 text-sm">
+              Customer: <span className="text-slate-950 dark:text-white font-medium">{serving.users?.name || '—'}</span>
             </p>
           </div>
           <button
@@ -401,28 +401,28 @@ function QueueControl({ slotId, queue, slots = [], activeSlot = null, setActiveS
       )}
 
       <button onClick={callNext} disabled={loading || !next} className="btn-primary w-full mb-3 text-base py-3">
-        {loading ? 'Calling…' : next ? `Call Next — #${String(next.token_number).padStart(3,'0')}` : 'Queue Empty'}
+        {loading ? 'Calling…' : next ? `Call Next — #${String(next.token_number).padStart(3, '0')}` : 'Queue Empty'}
       </button>
 
       {/* Queue list */}
       <div className="space-y-2 max-h-72 overflow-y-auto pr-1">
         {activeQueue.map((b, i) => (
-          <div key={b.id} className="flex items-center justify-between bg-surface-900 rounded-xl px-4 py-2.5">
+          <div key={b.id} className="flex items-center justify-between bg-slate-50 dark:bg-surface-900 border border-slate-100 dark:border-transparent rounded-xl px-4 py-2.5">
             <div className="flex items-center gap-3">
-              <span className="font-mono font-medium text-white w-12">
-                #{String(b.token_number).padStart(3,'0')}
+              <span className="font-mono font-medium text-slate-900 dark:text-white w-12">
+                #{String(b.token_number).padStart(3, '0')}
               </span>
-              <span className="text-slate-300 text-sm font-medium">
+              <span className="text-slate-700 dark:text-slate-300 text-sm font-medium">
                 {b.users?.name || '—'}
               </span>
               <span className={`badge ${
-                b.status === 'serving'  ? 'bg-emerald-900/40 text-emerald-400' :
-                b.status === 'arrived'  ? 'bg-blue-900/40 text-blue-400' :
-                b.status === 'skipped'  ? 'bg-red-900/40 text-red-400' :
+                b.status === 'serving' ? 'bg-emerald-900/40 text-emerald-450' :
+                b.status === 'arrived' ? 'bg-blue-900/40 text-blue-405' :
+                b.status === 'skipped' ? 'bg-red-900/40 text-red-405' :
                 'bg-slate-700 text-slate-400'
               }`}>{b.status}</span>
             </div>
-            {['pending','arrived'].includes(b.status) && (
+            {['pending', 'arrived'].includes(b.status) && (
               <button onClick={() => skip(b.id)} className="text-slate-500 hover:text-red-400 text-xs transition-colors">
                 Skip
               </button>
@@ -436,21 +436,18 @@ function QueueControl({ slotId, queue, slots = [], activeSlot = null, setActiveS
 
       {/* Completed History */}
       {completedQueue.length > 0 && (
-        <div className="mt-6 border-t border-slate-800/80 pt-4">
+        <div className="mt-6 border-t border-slate-200 dark:border-slate-800/80 pt-4">
           <div className="flex items-center justify-between mb-3">
             <h4 className="text-xs text-slate-400 uppercase tracking-widest font-semibold">Completed History</h4>
-            <span className="badge bg-slate-800 text-slate-400 text-[10px] font-bold px-2 py-0.5">{completedQueue.length} served</span>
+            <span className="badge bg-slate-200/60 dark:bg-slate-800 text-slate-600 dark:text-slate-400 text-[10px] font-bold px-2 py-0.5">{completedQueue.length} served</span>
           </div>
           <div className="space-y-1.5 max-h-44 overflow-y-auto pr-1">
             {completedQueue.map((b) => (
-              <div key={b.id} className="flex items-center justify-between bg-slate-900/40 rounded-xl px-4 py-2 border border-slate-850">
+              <div key={b.id} className="flex items-center justify-between bg-slate-50/50 dark:bg-slate-900/40 rounded-xl px-4 py-2 border border-slate-100 dark:border-slate-850">
                 <div className="flex items-center gap-3">
                   <span className="font-mono text-xs text-slate-500 w-12">#{String(b.token_number).padStart(3, '0')}</span>
-                  <span className="text-slate-300 text-sm font-medium">{b.users?.name || '—'}</span>
+                  <span className="text-slate-650 dark:text-slate-300 text-sm font-medium">{b.users?.name || '—'}</span>
                 </div>
-                <span className="text-emerald-400 text-[10px] font-semibold uppercase bg-emerald-950/40 px-2 py-0.5 rounded border border-emerald-900/30">
-                  Served
-                </span>
               </div>
             ))}
           </div>
@@ -648,10 +645,10 @@ function StaffManager() {
         ) : (
           <div className="space-y-2">
             {staffList.map(s => (
-              <div key={s.id} className="flex items-center justify-between bg-surface-900 rounded-xl px-4 py-3">
+              <div key={s.id} className="flex items-center justify-between bg-slate-50 dark:bg-surface-900 border border-slate-150 dark:border-slate-800 rounded-xl px-4 py-3">
                 <div>
-                  <p className="text-slate-200 text-sm font-medium">{s.name}</p>
-                  <p className="text-slate-500 text-xs">{s.email}{s.phone ? ` · ${s.phone}` : ''}</p>
+                  <p className="text-slate-800 dark:text-slate-200 text-sm font-medium">{s.name}</p>
+                  <p className="text-slate-500 dark:text-slate-400 text-xs">{s.email}{s.phone ? ` · ${s.phone}` : ''}</p>
                 </div>
                 <button
                   onClick={() => handleDelete(s.id, s.name)}
@@ -824,7 +821,7 @@ function BusinessSelector({ businesses, activeBiz, setActiveBiz, onAddBusiness }
         <button
           type="button"
           onClick={() => setIsOpen(!isOpen)}
-          className="input flex items-center justify-between w-full text-left bg-surface-900 border border-slate-700/60 rounded-xl px-4 py-2.5 text-slate-200 hover:border-brand-500/50 transition-all font-medium"
+          className="input flex items-center justify-between w-full text-left bg-white dark:bg-surface-900 border border-slate-200 dark:border-slate-700/60 rounded-xl px-4 py-2.5 text-slate-800 dark:text-slate-200 hover:border-brand-500/50 transition-all font-medium"
         >
           <span>{activeBiz?.name || 'Select Business'}</span>
           <svg
@@ -838,7 +835,7 @@ function BusinessSelector({ businesses, activeBiz, setActiveBiz, onAddBusiness }
         </button>
 
         {isOpen && (
-          <div className="absolute left-0 right-0 mt-2 bg-surface-950 border border-slate-700/60 rounded-xl shadow-2xl z-50 overflow-hidden py-1 animate-slide-up">
+          <div className="absolute left-0 right-0 mt-2 bg-white dark:bg-surface-950 border border-slate-200 dark:border-slate-800 rounded-xl shadow-2xl z-50 overflow-hidden py-1 animate-slide-up">
             {businesses.map((b) => (
               <button
                 key={b.id}
@@ -849,12 +846,12 @@ function BusinessSelector({ businesses, activeBiz, setActiveBiz, onAddBusiness }
                 }}
                 className={`w-full text-left px-4 py-2.5 text-sm transition-colors flex items-center justify-between
                   ${activeBiz?.id === b.id 
-                    ? 'bg-brand-600/20 text-brand-300 font-semibold' 
-                    : 'text-slate-300 hover:bg-slate-800/50 hover:text-white'}`}
+                    ? 'bg-brand-600/10 dark:bg-brand-600/20 text-brand-600 dark:text-brand-300 font-semibold' 
+                    : 'text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800/50 hover:text-slate-900 dark:hover:text-white'}`}
               >
                 <span>{b.name}</span>
                 {activeBiz?.id === b.id && (
-                  <svg className="w-4 h-4 text-brand-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-4 h-4 text-brand-500 dark:text-brand-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M5 13l4 4L19 7" />
                   </svg>
                 )}
@@ -1000,11 +997,11 @@ export default function AdminDashboard() {
       )}
 
       {/* Tabs */}
-      <div className="flex gap-1 bg-surface-900 rounded-xl p-1 mb-6 flex-wrap">
+      <div className="flex gap-1 bg-slate-100 dark:bg-surface-900 rounded-xl p-1 mb-6 flex-wrap border border-slate-200/50 dark:border-transparent">
         {TABS.map(t => (
           <button key={t} onClick={() => setTab(t)}
             className={`flex-1 py-2 rounded-lg text-sm font-medium transition-all min-w-[70px]
-              ${tab === t ? 'bg-brand-600 text-white' : 'text-slate-400 hover:text-white'}`}>
+              ${tab === t ? 'bg-brand-600 text-white shadow-sm' : 'text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white'}`}>
             {TAB_LABELS[t]}
           </button>
         ))}

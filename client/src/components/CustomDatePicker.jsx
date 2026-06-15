@@ -97,9 +97,9 @@ export default function CustomDatePicker({ value, onChange, min, className = '' 
       {/* Input Field Trigger */}
       <div 
         onClick={() => setIsOpen(!isOpen)}
-        className={`input flex items-center justify-between cursor-pointer select-none bg-surface-900 border border-slate-700/60 hover:border-brand-500/50 rounded-xl px-4 py-3 text-slate-100 transition-all duration-200 ${isOpen ? 'ring-2 ring-brand-500 border-transparent shadow-lg shadow-brand-500/5' : ''} ${className}`}
+        className={`input flex items-center justify-between cursor-pointer select-none bg-white dark:bg-surface-900 border border-slate-200 dark:border-slate-700/60 hover:border-brand-500/50 rounded-xl px-4 py-3 text-slate-800 dark:text-slate-100 transition-all duration-200 ${isOpen ? 'ring-2 ring-brand-500 border-transparent shadow-lg shadow-brand-500/5' : ''} ${className}`}
       >
-        <span className={value ? 'text-slate-100 font-medium' : 'text-slate-500'}>
+        <span className={value ? 'text-slate-800 dark:text-slate-100 font-medium' : 'text-slate-400 dark:text-slate-500'}>
           {getFormattedDisplayValue() || 'Select Date'}
         </span>
         <svg
@@ -119,27 +119,27 @@ export default function CustomDatePicker({ value, onChange, min, className = '' 
 
       {/* Dropdown Calendar */}
       {isOpen && (
-        <div className="absolute left-0 mt-2 bg-surface-950 border border-slate-800/80 rounded-2xl shadow-2xl z-50 p-4 w-[310px] animate-slide-up origin-top-left">
+        <div className="absolute left-0 mt-2 bg-white dark:bg-surface-950 border border-slate-200 dark:border-slate-800/80 rounded-2xl shadow-2xl z-50 p-4 w-[310px] animate-slide-up origin-top-left">
           {/* Header */}
           <div className="flex items-center justify-between mb-4">
             <button
               type="button"
               onClick={prevMonth}
-              className="p-1.5 rounded-lg hover:bg-slate-800 text-slate-400 hover:text-white transition-colors"
+              className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400 dark:text-slate-500 hover:text-slate-900 dark:hover:text-white transition-colors"
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
               </svg>
             </button>
             
-            <h4 className="font-display font-bold text-sm text-slate-200 capitalize tracking-wide select-none">
+            <h4 className="font-display font-bold text-sm text-slate-800 dark:text-slate-200 capitalize tracking-wide select-none">
               {monthNames[month]} {year}
             </h4>
 
             <button
               type="button"
               onClick={nextMonth}
-              className="p-1.5 rounded-lg hover:bg-slate-800 text-slate-400 hover:text-white transition-colors"
+              className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400 dark:text-slate-500 hover:text-slate-900 dark:hover:text-white transition-colors"
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
@@ -150,7 +150,7 @@ export default function CustomDatePicker({ value, onChange, min, className = '' 
           {/* Weekdays Row */}
           <div className="grid grid-cols-7 gap-1 mb-2 text-center select-none">
             {weekdays.map(d => (
-              <span key={d} className="text-slate-500 font-bold text-[11px] uppercase tracking-wider py-1">
+              <span key={d} className="text-slate-400 dark:text-slate-500 font-bold text-[11px] uppercase tracking-wider py-1">
                 {d}
               </span>
             ))}
@@ -172,15 +172,15 @@ export default function CustomDatePicker({ value, onChange, min, className = '' 
                   className={`
                     w-9 h-9 flex items-center justify-center text-sm rounded-lg transition-all relative font-medium
                     ${isDisabled 
-                      ? 'text-slate-700 cursor-not-allowed opacity-30 bg-transparent' 
+                      ? 'text-slate-300 dark:text-slate-700 cursor-not-allowed opacity-30 bg-transparent' 
                       : cell.isCurrentMonth 
-                        ? 'text-slate-200' 
-                        : 'text-slate-500'}
-                    ${!isDisabled && !isCellSelected ? 'hover:bg-slate-800/80 hover:text-white cursor-pointer' : ''}
+                        ? 'text-slate-750 dark:text-slate-200' 
+                        : 'text-slate-400 dark:text-slate-500'}
+                    ${!isDisabled && !isCellSelected ? 'hover:bg-slate-100 dark:hover:bg-slate-800/80 hover:text-slate-900 dark:hover:text-white cursor-pointer' : ''}
                     ${isCellSelected 
                       ? 'bg-brand-600 text-white font-semibold shadow-lg shadow-brand-600/35 scale-105' 
                       : ''}
-                    ${isCellToday && !isCellSelected ? 'border border-brand-500/50 text-brand-400' : ''}
+                    ${isCellToday && !isCellSelected ? 'border border-brand-500/50 text-brand-600 dark:text-brand-400' : ''}
                   `}
                 >
                   {cell.day}
@@ -190,18 +190,18 @@ export default function CustomDatePicker({ value, onChange, min, className = '' 
           </div>
 
           {/* Bottom Actions */}
-          <div className="flex items-center justify-between border-t border-slate-800/60 mt-3.5 pt-3 select-none">
+          <div className="flex items-center justify-between border-t border-slate-100 dark:border-slate-800/60 mt-3.5 pt-3 select-none">
             <button
               type="button"
               onClick={() => handleSelectDay(todayStr)}
-              className="text-xs text-brand-400 hover:text-brand-300 font-bold transition-colors"
+              className="text-xs text-brand-600 dark:text-brand-400 hover:text-brand-700 dark:hover:text-brand-300 font-bold transition-colors"
             >
               Today
             </button>
             <button
               type="button"
               onClick={() => setIsOpen(false)}
-              className="text-xs text-slate-500 hover:text-slate-400 font-medium transition-colors"
+              className="text-xs text-slate-400 dark:text-slate-500 hover:text-slate-650 dark:hover:text-slate-400 font-medium transition-colors"
             >
               Close
             </button>

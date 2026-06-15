@@ -14,22 +14,22 @@ function SlotCard({ slot, selected, onSelect }) {
       disabled={full}
       onClick={() => onSelect(slot)}
       className={`card text-left transition-all duration-200 w-full
-        ${selected?.id === slot.id ? 'border-brand-500 bg-brand-900/20' : 'hover:border-slate-600'}
+        ${selected?.id === slot.id ? 'border-brand-500 bg-brand-50 dark:bg-brand-950/20' : 'hover:border-slate-300 dark:hover:border-slate-600'}
         ${full ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
     >
       <div className="flex items-center justify-between mb-3">
-        <span className="font-mono text-lg font-medium text-white">
+        <span className="font-mono text-lg font-medium text-slate-900 dark:text-white">
           {slot.start_time.slice(0, 5)} – {slot.end_time.slice(0, 5)}
         </span>
         {full
-          ? <span className="badge bg-red-900/40 text-red-400">Full</span>
-          : <span className="badge bg-emerald-900/40 text-emerald-400">Available</span>
+          ? <span className="badge bg-red-50 dark:bg-red-900/40 text-red-650 dark:text-red-400">Full</span>
+          : <span className="badge bg-emerald-50 dark:bg-emerald-900/40 text-emerald-600 dark:text-emerald-400">Available</span>
         }
       </div>
-      <div className="text-slate-400 text-sm mb-3">
+      <div className="text-slate-500 dark:text-slate-400 text-sm mb-3">
         {slot.booked_count} / {slot.max_capacity} booked
       </div>
-      <div className="h-1.5 bg-slate-700 rounded-full overflow-hidden">
+      <div className="h-1.5 bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden">
         <div
           className={`h-full rounded-full transition-all ${pct > 80 ? 'bg-red-500' : pct > 50 ? 'bg-yellow-500' : 'bg-brand-500'}`}
           style={{ width: `${pct}%` }}
@@ -100,7 +100,7 @@ export default function BookSlot() {
 
       {/* Date picker */}
       <div className="mb-6">
-        <label className="block text-sm text-slate-300 mb-1.5">Select Date</label>
+        <label className="block text-sm text-slate-700 dark:text-slate-350 mb-1.5">Select Date</label>
         <CustomDatePicker
           value={date}
           min={new Date().toISOString().split('T')[0]}
@@ -111,9 +111,9 @@ export default function BookSlot() {
       {/* Slots */}
       <h2 className="font-display font-semibold text-lg mb-4">Available Time Slots</h2>
       {availableSlots.length === 0 ? (
-        <div className="card text-center text-slate-400 py-12 px-6">
-          <p className="font-medium text-slate-300 mb-2">No slots available for this date.</p>
-          <p className="text-slate-500 text-xs max-w-sm mx-auto leading-relaxed">
+        <div className="card text-center text-slate-500 py-12 px-6">
+          <p className="font-medium text-slate-800 dark:text-slate-300 mb-2">No slots available for this date.</p>
+          <p className="text-slate-500 dark:text-slate-500 text-xs max-w-sm mx-auto leading-relaxed">
             If you are the business administrator, please log in to the Staff Portal and go to the **Slots** tab to create time slots for this business.
           </p>
         </div>
@@ -126,12 +126,12 @@ export default function BookSlot() {
       )}
 
       {selected && (
-        <div className="card border-brand-600/40 bg-brand-900/10 mb-6 animate-slide-up">
-          <p className="text-sm text-brand-300 mb-1">Selected slot</p>
-          <p className="font-mono font-medium text-white">
+        <div className="card border-brand-500/40 dark:border-brand-600/40 bg-brand-50 dark:bg-brand-900/10 mb-6 animate-slide-up">
+          <p className="text-sm text-brand-600 dark:text-brand-300 mb-1">Selected slot</p>
+          <p className="font-mono font-medium text-slate-900 dark:text-white">
             {selected.start_time.slice(0, 5)} – {selected.end_time.slice(0, 5)}
           </p>
-          <p className="text-slate-400 text-sm mt-1">
+          <p className="text-slate-500 dark:text-slate-400 text-sm mt-1">
             You'll be token #{selected.booked_count + 1}
           </p>
         </div>

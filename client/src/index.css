@@ -12,15 +12,15 @@
   }
 
   body {
-    font-family: 'DM Sans', sans-serif;
-    background-color: #ffffff;
+    font-family: 'Montserrat', sans-serif;
+    background-color: #F5F5F0;
     background-image:
-      radial-gradient(at 0% 0%, rgba(243, 232, 255, 0.8) 0px, transparent 50%),
-      radial-gradient(at 100% 100%, rgba(204, 251, 241, 0.8) 0px, transparent 50%),
-      radial-gradient(at 100% 0%, rgba(224, 242, 254, 0.6) 0px, transparent 50%),
-      radial-gradient(at 0% 100%, rgba(253, 242, 248, 0.6) 0px, transparent 50%);
+      radial-gradient(at 0% 0%, rgba(255, 179, 71, 0.08) 0px, transparent 50%),
+      radial-gradient(at 100% 100%, rgba(217, 119, 6, 0.06) 0px, transparent 50%),
+      radial-gradient(at 100% 0%, rgba(245, 158, 11, 0.05) 0px, transparent 50%),
+      radial-gradient(at 0% 100%, rgba(180, 83, 9, 0.04) 0px, transparent 50%);
     background-attachment: fixed;
-    color: #0f172a;
+    color: #33312E;
     -webkit-font-smoothing: antialiased;
   }
 
@@ -28,7 +28,7 @@
   h2,
   h3,
   h4 {
-    font-family: 'Syne', sans-serif;
+    font-family: 'Montserrat', sans-serif;
   }
 }
 
@@ -37,9 +37,9 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    background-color: #2563eb;
-    color: #ffffff;
-    font-weight: 600;
+    background-color: #FFB347;
+    color: #33312E;
+    font-weight: 700;
     padding: 0.625rem 1.25rem;
     border-radius: 9999px;
     transition: all 0.2s ease;
@@ -48,8 +48,8 @@
   }
 
   .btn-primary:hover:not(:disabled) {
-    background-color: #1d4ed8;
-    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+    background-color: #F59E0B;
+    box-shadow: 0 4px 12px rgba(255, 179, 71, 0.3);
   }
 
   .btn-primary:active:not(:disabled) {
@@ -66,18 +66,18 @@
     align-items: center;
     justify-content: center;
     background-color: #ffffff;
-    color: #2563eb;
+    color: #33312E;
     font-weight: 600;
     padding: 0.625rem 1.25rem;
     border-radius: 9999px;
-    border: 1px solid #dbeafe;
+    border: 1px solid #E8E6E1;
     transition: all 0.2s ease;
     cursor: pointer;
   }
 
   .btn-secondary:hover {
-    background-color: #f0f7ff;
-    border-color: #bfdbfe;
+    background-color: #FFF8EB;
+    border-color: #FFD98A;
   }
 
   .btn-secondary:active {
@@ -86,8 +86,8 @@
 
   .card {
     background: #ffffff;
-    border: 1px solid rgba(226, 232, 240, 0.8);
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+    border: 1px solid rgba(232, 230, 225, 0.8);
+    box-shadow: 0 4px 6px -1px rgba(51, 49, 46, 0.04), 0 2px 4px -1px rgba(51, 49, 46, 0.02);
     border-radius: 1rem;
     padding: 1.5rem;
     transition: transform 0.2s ease, box-shadow 0.2s ease;
@@ -95,27 +95,27 @@
 
   .card:hover {
     transform: translateY(-2px);
-    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -2px rgba(0, 0, 0, 0.04);
+    box-shadow: 0 10px 15px -3px rgba(51, 49, 46, 0.06), 0 4px 6px -2px rgba(51, 49, 46, 0.03);
   }
 
   .input {
     width: 100%;
     background-color: #ffffff;
-    border: 1px solid #cbd5e1;
+    border: 1px solid #D5D0C8;
     border-radius: 0.75rem;
     padding: 0.75rem 1rem;
-    color: #0f172a;
+    color: #33312E;
     outline: none;
     transition: all 0.2s ease;
   }
 
   .input::placeholder {
-    color: #94a3b8;
+    color: #7A7570;
   }
 
   .input:focus {
-    border-color: #3b82f6;
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+    border-color: #FFB347;
+    box-shadow: 0 0 0 3px rgba(255, 179, 71, 0.15);
   }
 
   .badge {
@@ -169,7 +169,7 @@ input[type="number"] {
 }
 
 .text-shadow-premium {
-  text-shadow: 0 4px 12px rgba(37, 99, 235, 0.1);
+  text-shadow: 0 4px 12px rgba(255, 179, 71, 0.1);
 }
 
 /* Navigation link clean pill hover animation */
@@ -179,13 +179,100 @@ input[type="number"] {
   justify-content: center;
   padding: 0.5rem 1.125rem;
   border-radius: 9999px;
-  color: #475569; /* Slate 600 */
+  color: #5C5752;
   font-weight: 500;
   transition: all 0.2s ease-in-out;
   cursor: pointer;
 }
 
 .nav-pill-item:hover {
-  background-color: rgba(99, 102, 241, 0.08); /* Soft lavender-blue background */
-  color: #4f46e5; /* Bold purple-indigo text */
+  background-color: rgba(255, 179, 71, 0.12);
+  color: #B45309;
+}
+
+/* Global Dark Mode Classes */
+html.dark body {
+  background-color: #121110;
+  background-image:
+    radial-gradient(at 0% 0%, rgba(180, 83, 9, 0.15) 0px, transparent 50%),
+    radial-gradient(at 100% 100%, rgba(120, 53, 15, 0.12) 0px, transparent 50%),
+    radial-gradient(at 100% 0%, rgba(146, 64, 14, 0.08) 0px, transparent 50%),
+    radial-gradient(at 0% 100%, rgba(69, 26, 3, 0.08) 0px, transparent 50%);
+  color: #E8E6E1;
+}
+
+html.dark .card {
+  background: #1E1B18;
+  border-color: rgba(58, 53, 48, 0.6);
+  color: #E8E6E1;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2), 0 2px 4px -1px rgba(0, 0, 0, 0.1);
+}
+
+html.dark .input {
+  background-color: #2A2622;
+  border-color: #3A3530;
+  color: #E8E6E1;
+}
+
+html.dark .input::placeholder {
+  color: #7A7570;
+}
+
+html.dark .input:focus {
+  border-color: #FFB347;
+  box-shadow: 0 0 0 3px rgba(255, 179, 71, 0.2);
+}
+
+html.dark .btn-secondary {
+  background-color: #2A2622;
+  color: #FFB347;
+  border-color: #3A3530;
+}
+
+html.dark .btn-secondary:hover {
+  background-color: #3A3530;
+  border-color: #45403C;
+}
+
+html.dark .nav-pill-item {
+  color: #7A7570;
+}
+
+html.dark .nav-pill-item:hover {
+  background-color: rgba(255, 179, 71, 0.12);
+  color: #FFB347;
+}
+
+/* Theme toggle flash overlay */
+@keyframes theme-flash {
+  0%   { opacity: 0; }
+  15%  { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+.theme-flash-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 99999;
+  pointer-events: none;
+  animation: theme-flash 0.45s ease-out forwards;
+}
+
+.theme-flash-overlay--to-dark {
+  background: radial-gradient(circle at var(--flash-x, 50%) var(--flash-y, 0%), #1E1B18 0%, rgba(30, 27, 24, 0.6) 60%, transparent 100%);
+}
+
+.theme-flash-overlay--to-light {
+  background: radial-gradient(circle at var(--flash-x, 50%) var(--flash-y, 0%), #F5F5F0 0%, rgba(245, 245, 240, 0.6) 60%, transparent 100%);
+}
+
+/* Theme toggle icon spin */
+@keyframes toggle-spin {
+  0%   { transform: rotate(0deg) scale(1); }
+  50%  { transform: rotate(180deg) scale(0.8); }
+  100% { transform: rotate(360deg) scale(1); }
+}
+
+.theme-toggle-spin {
+  animation: toggle-spin 0.45s ease-in-out;
 }

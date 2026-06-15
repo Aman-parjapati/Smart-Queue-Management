@@ -46,7 +46,7 @@ public class SecurityConfig {
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
                 // Public authentication and registry
-                .requestMatchers(HttpMethod.POST, "/api/auth/register", "/api/auth/login", "/api/auth/login/admin", "/api/auth/login/staff").permitAll()
+                .requestMatchers(HttpMethod.POST, "/api/auth/register", "/api/auth/login", "/api/auth/login/admin", "/api/auth/login/staff", "/api/contact").permitAll()
                 // Public businesses API
                 .requestMatchers(HttpMethod.GET, "/api/businesses", "/api/businesses/*").permitAll()
                 // Public slots API

@@ -34,22 +34,22 @@ export default function AdminLogin() {
     <div className="min-h-[80vh] flex items-center justify-center px-4">
       <div className="w-full max-w-md animate-slide-up">
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-brand-900/40 border border-brand-700/40 mb-4">
+          <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-brand-600/10 dark:bg-brand-900/40 border border-brand-200 dark:border-brand-700/40 mb-4">
             <span className="text-xl">🔐</span>
           </div>
-          <h1 className="font-display text-3xl font-bold mb-2">Staff Portal</h1>
-          <p className="text-slate-400 text-sm">For business admins and staff only</p>
+          <h1 className="font-display text-3xl font-bold mb-2 text-slate-900 dark:text-white">Staff Portal</h1>
+          <p className="text-slate-500 dark:text-slate-400 text-sm">For business admins and staff only</p>
         </div>
 
         <div className="card">
-          <div className="flex gap-1 bg-surface-900 rounded-xl p-1 mb-5">
+          <div className="flex gap-1 bg-slate-100 dark:bg-surface-900 rounded-xl p-1 mb-5 border border-slate-200/50 dark:border-transparent">
             {['admin', 'staff'].map(r => (
               <button
                 key={r}
                 type="button"
                 onClick={() => setRole(r)}
                 className={`flex-1 py-2 rounded-lg text-sm font-medium capitalize transition-all
-                  ${role === r ? 'bg-brand-600 text-white' : 'text-slate-400 hover:text-white'}`}
+                  ${role === r ? 'bg-brand-600 text-white shadow-sm' : 'text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white'}`}
               >
                 {r === 'admin' ? '🏢 Admin' : '👤 Staff'}
               </button>
@@ -58,7 +58,7 @@ export default function AdminLogin() {
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-sm text-slate-300 mb-1.5">Email</label>
+              <label className="block text-sm text-slate-700 dark:text-slate-350 mb-1.5 font-medium">Email</label>
               <input
                 type="email"
                 required
@@ -69,7 +69,7 @@ export default function AdminLogin() {
               />
             </div>
             <div>
-              <label className="block text-sm text-slate-300 mb-1.5">Password</label>
+              <label className="block text-sm text-slate-700 dark:text-slate-350 mb-1.5 font-medium">Password</label>
               <input
                 type="password"
                 required
@@ -89,10 +89,10 @@ export default function AdminLogin() {
             </button>
           </form>
 
-          <div className="border-t border-slate-700 mt-5 pt-4 text-center">
-            <p className="text-slate-500 text-xs">
+          <div className="border-t border-slate-100 dark:border-slate-800 mt-5 pt-4 text-center">
+            <p className="text-slate-500 text-xs font-medium">
               Customer?{' '}
-              <Link to="/login" className="text-slate-400 hover:text-slate-300 underline underline-offset-2">
+              <Link to="/login" className="text-brand-600 dark:text-brand-400 hover:text-brand-700 dark:hover:text-brand-300 underline underline-offset-2 font-semibold">
                 Customer login →
               </Link>
             </p>

@@ -78,7 +78,7 @@ export default function ProfileModal({ isOpen, onClose }) {
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-fade-in">
-      <div className="relative bg-surface-950 border border-slate-800 rounded-2xl shadow-2xl w-full max-w-md p-6 overflow-hidden animate-slide-up origin-center">
+      <div className="relative bg-white dark:bg-surface-950 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-2xl w-full max-w-md p-6 overflow-hidden animate-slide-up origin-center">
         {confirmDelete ? (
           <div className="text-center py-4 select-none">
             {/* Warning Icon */}
@@ -88,7 +88,7 @@ export default function ProfileModal({ isOpen, onClose }) {
               </svg>
             </div>
 
-            <h3 className="font-display font-bold text-lg text-white mb-2">Delete Account</h3>
+            <h3 className="font-display font-bold text-lg text-slate-900 dark:text-white mb-2">Delete Account</h3>
             <p className="text-sm text-slate-400 mb-6 px-2">
               Are you sure you want to permanently delete your account? This will also cancel all your bookings and queues. This action cannot be undone.
             </p>
@@ -116,10 +116,21 @@ export default function ProfileModal({ isOpen, onClose }) {
           <>
             {/* Header */}
             <div className="flex items-center justify-between mb-5 select-none">
-              <h3 className="font-display font-bold text-xl text-white">Edit Profile</h3>
+              <div className="flex items-center gap-2">
+                <h3 className="font-display font-bold text-xl text-slate-900 dark:text-white">Edit Profile</h3>
+                <span className={`badge uppercase tracking-wider text-[10px] px-2.5 py-0.5 rounded-full font-bold ${
+                  user.role === 'admin' 
+                    ? 'bg-brand-100 text-brand-800 dark:bg-brand-950/60 dark:text-brand-300' 
+                    : user.role === 'staff' 
+                      ? 'bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300' 
+                      : 'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-350'
+                }`}>
+                  {user.role}
+                </span>
+              </div>
               <button 
                 onClick={onClose}
-                className="p-1 rounded-lg text-slate-500 hover:text-white hover:bg-slate-800 transition-all"
+                className="p-1 rounded-lg text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-all"
                 type="button"
               >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
@@ -179,10 +190,10 @@ export default function ProfileModal({ isOpen, onClose }) {
                 </>
               ) : (
                 <>
-                  <div className="bg-slate-900 border border-slate-800 rounded-xl p-3 select-none mb-2">
-                    <p className="text-xs text-slate-400">Account Role</p>
-                    <p className="text-sm font-semibold text-slate-200 capitalize mt-0.5">{user.role}</p>
-                    <p className="text-xs text-slate-500 mt-1">Email (cannot be changed): {user.email}</p>
+                  <div className="bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-3 select-none mb-2">
+                    <p className="text-xs text-slate-500 dark:text-slate-400">Account Role</p>
+                    <p className="text-sm font-semibold text-slate-800 dark:text-slate-200 capitalize mt-0.5">{user.role}</p>
+                    <p className="text-xs text-slate-400 dark:text-slate-500 mt-1">Email (cannot be changed): {user.email}</p>
                   </div>
 
                   <div>
