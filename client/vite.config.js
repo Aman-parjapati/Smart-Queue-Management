@@ -13,6 +13,8 @@ export default defineConfig({
     },
   },
   build: {
+    outDir: '../server/src/main/resources/static',
+    emptyOutDir: true,
     rollupOptions: {
       output: {
         manualChunks(id) {
