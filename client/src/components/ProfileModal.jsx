@@ -122,7 +122,7 @@ export default function ProfileModal({ isOpen, onClose }) {
                   user.role === 'admin' 
                     ? 'bg-brand-100 text-brand-800 dark:bg-brand-950/60 dark:text-brand-300' 
                     : user.role === 'staff' 
-                      ? 'bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300' 
+                      ? 'bg-brand-100 text-brand-800 dark:bg-brand-950/60 dark:text-brand-300' 
                       : 'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-350'
                 }`}>
                   {user.role}

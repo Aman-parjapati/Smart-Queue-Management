@@ -48,6 +48,7 @@ public class SlotController {
         @NotNull(message = "end_time is required")
         private LocalTime end_time;
         private Integer max_capacity;
+        private Boolean entire_month;
     }
 
     @Data
@@ -81,6 +82,43 @@ public class SlotController {
         // Staff can only create slots for their own business
         if ("staff".equals(principal.getRole()) && !body.getBusiness_id().equals(principal.getBusinessId())) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("error", "Access denied"));
+        }
+
+        if (body.getEntire_month() != null && body.getEntire_month()) {
+            LocalDate startDate = body.getDate();
+            LocalDate endDate = body.getDate().with(java.time.temporal.TemporalAdjusters.lastDayOfMonth());
+            List<Slot> createdSlots = new ArrayList<>();
+            for (LocalDate date = startDate; !date.isAfter(endDate); date = date.plusDays(1)) {
+                boolean exists = slotRepository.existsByBusinessIdAndDateAndStartTimeAndEndTimeAndIsActiveTrue(
+                        body.getBusiness_id(), date, body.getStart_time(), body.getEnd_time()
+                );
+                if (!exists) {
+                    Slot slot = Slot.builder()
+                            .businessId(body.getBusiness_id())
+                            .date(date)
+                            .startTime(body.getStart_time())
+                            .endTime(body.getEnd_time())
+                            .maxCapacity(body.getMax_capacity() != null ? body.getMax_capacity() : 20)
+                            .build();
+                    createdSlots.add(slot);
+                }
+            }
+            if (createdSlots.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("error", "Slot already exists"));
+            }
+            slotRepository.saveAll(createdSlots);
+            return ResponseEntity.status(HttpStatus.CREATED).body(Map.of(
+                    "success", true,
+                    "message", "Slots created successfully for the remainder of the month",
+                    "count", createdSlots.size()
+            ));
+        }
+
+        boolean exists = slotRepository.existsByBusinessIdAndDateAndStartTimeAndEndTimeAndIsActiveTrue(
+                body.getBusiness_id(), body.getDate(), body.getStart_time(), body.getEnd_time()
+        );
+        if (exists) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("error", "Slot already exists"));
         }
 
         Slot slot = Slot.builder()

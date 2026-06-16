@@ -6,7 +6,7 @@ import toast from 'react-hot-toast';
 
 const STATUS_CONFIG = {
   pending:  { label: 'Waiting',  color: 'text-yellow-600 dark:text-yellow-400', bg: 'bg-yellow-50 dark:bg-yellow-900/20 border-yellow-200 dark:border-yellow-700/40' },
-  arrived:  { label: 'Checked In', color: 'text-amber-600 dark:text-amber-400', bg: 'bg-amber-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-700/40' },
+  arrived:  { label: 'Checked In', color: 'text-brand-600 dark:text-brand-400', bg: 'bg-brand-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-700/40' },
   serving:  { label: 'Your Turn!', color: 'text-emerald-600 dark:text-emerald-400', bg: 'bg-emerald-50 dark:bg-emerald-900/20 border-emerald-200 dark:border-emerald-700/40' },
   done:     { label: 'Done',     color: 'text-slate-500 dark:text-slate-400', bg: 'bg-slate-100 dark:bg-slate-800 border-slate-200 dark:border-slate-700' },
   skipped:  { label: 'Skipped', color: 'text-red-650 dark:text-red-400', bg: 'bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-700/40' },
@@ -25,6 +25,136 @@ export default function MyToken() {
     toast.success('Booking ID copied!');
     setTimeout(() => setCopied(false), 2000);
   }
+
+  const handleDownloadQrOnly = () => {
+    if (!booking?.qr_code) return;
+    const link = document.createElement('a');
+    link.download = `smartqueue_qr_${booking.token_number}.png`;
+    link.href = booking.qr_code;
+    link.click();
+    toast.success('QR Code download started!');
+  };
+
+  const handleDownloadTicket = () => {
+    if (!booking) return;
+
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+
+    const width = 800;
+    const height = 1200;
+    canvas.width = width;
+    canvas.height = height;
+
+    // Draw background gradient (high-end midnight/slate theme)
+    const gradient = ctx.createLinearGradient(0, 0, 0, height);
+    gradient.addColorStop(0, '#0f172a'); // Slate 900
+    gradient.addColorStop(1, '#020617'); // Slate 950
+    ctx.fillStyle = gradient;
+    ctx.fillRect(0, 0, width, height);
+
+    // Draw decorative glowing top line
+    ctx.fillStyle = '#10b981'; // Emerald 500
+    ctx.fillRect(0, 0, width, 15);
+
+    // Draw card border (glowing emerald outline)
+    ctx.strokeStyle = 'rgba(16, 185, 129, 0.2)';
+    ctx.lineWidth = 2;
+    ctx.strokeRect(30, 30, width - 60, height - 60);
+
+    // Draw header
+    ctx.fillStyle = '#10b981';
+    ctx.font = 'bold 22px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.letterSpacing = '5px';
+    ctx.fillText('SMARTQUEUE BOOKING TICKET', width / 2, 90);
+
+    // Divider
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.08)';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(60, 130);
+    ctx.lineTo(width - 60, 130);
+    ctx.stroke();
+
+    // Business Name
+    const bizName = booking.slots?.businesses?.name || booking.slot?.business?.name || 'City Dental Clinic';
+    ctx.fillStyle = '#ffffff';
+    ctx.font = 'bold 46px sans-serif';
+    ctx.fillText(bizName, width / 2, 200);
+
+    const branchName = booking.slots?.businesses?.branch || booking.slot?.business?.branch;
+    if (branchName) {
+      ctx.fillStyle = '#94a3b8'; // Slate 400
+      ctx.font = '28px sans-serif';
+      ctx.fillText(branchName, width / 2, 245);
+    }
+
+    // Token Section
+    ctx.fillStyle = '#64748b'; // Slate 500
+    ctx.font = 'bold 24px sans-serif';
+    ctx.fillText('YOUR TOKEN NUMBER', width / 2, 330);
+
+    // Big green token number
+    ctx.fillStyle = '#10b981'; // Emerald 500
+    ctx.font = 'bold 120px monospace';
+    const tokenStr = `#${String(booking.token_number).padStart(3, '0')}`;
+    ctx.fillText(tokenStr, width / 2, 450);
+
+    // Status badge background
+    const statusText = booking.status.toUpperCase();
+    ctx.fillStyle = 'rgba(16, 185, 129, 0.1)';
+    ctx.beginPath();
+    ctx.roundRect((width - 240) / 2, 490, 240, 50, 25);
+    ctx.fill();
+
+    ctx.fillStyle = '#10b981';
+    ctx.font = 'bold 22px sans-serif';
+    ctx.fillText(statusText, width / 2, 523);
+
+    // Divider
+    ctx.beginPath();
+    ctx.moveTo(60, 580);
+    ctx.lineTo(width - 60, 580);
+    ctx.stroke();
+
+    // Load QR code
+    const qrImg = new Image();
+    qrImg.onload = () => {
+      const qrSize = 340;
+      const qrX = (width - qrSize) / 2;
+      const qrY = 630;
+
+      // Draw white card background for QR code
+      ctx.fillStyle = '#ffffff';
+      ctx.beginPath();
+      ctx.roundRect(qrX - 20, qrY - 20, qrSize + 40, qrSize + 40, 24);
+      ctx.fill();
+
+      // Draw QR Code
+      ctx.drawImage(qrImg, qrX, qrY, qrSize, qrSize);
+
+      // Details section
+      ctx.fillStyle = '#94a3b8';
+      ctx.font = '24px sans-serif';
+      ctx.fillText(`Date: ${booking.slots?.date || booking.slot?.date || ''}`, width / 2, 1050);
+
+      const timeStr = `${booking.slots?.start_time?.slice(0, 5) || ''} - ${booking.slots?.end_time?.slice(0, 5) || ''}`;
+      ctx.fillText(`Time Slot: ${timeStr}`, width / 2, 1090);
+
+      ctx.fillStyle = '#475569'; // Muted slate
+      ctx.font = 'monospace 20px';
+      ctx.fillText(`Booking ID: ${booking.id}`, width / 2, 1140);
+
+      // Download
+      const link = document.createElement('a');
+      link.download = `smartqueue_ticket_${booking.token_number}.png`;
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+      toast.success('Ticket download started!');
+    };
+    qrImg.src = booking.qr_code;
+  };
 
   useEffect(() => {
     api.get(`/bookings/${bookingId}`)
@@ -113,13 +243,34 @@ export default function MyToken() {
       {/* QR Code */}
       {booking.qr_code && (
         <div className="card text-center">
-          <p className="text-slate-800 dark:text-slate-300 font-medium mb-4">Check-in QR Code</p>
+          <p className="text-slate-800 dark:text-slate-350 font-medium mb-4">Check-in QR Code</p>
           <img
             src={booking.qr_code}
             alt="QR Code for check-in"
             className="mx-auto rounded-xl w-48 h-48 border border-slate-100 dark:border-slate-800 p-2 bg-white"
           />
           <p className="text-slate-500 dark:text-slate-400 text-xs mt-3">Show this to staff when you arrive</p>
+
+          <div className="mt-5 flex flex-col sm:flex-row gap-3 justify-center">
+            <button
+              onClick={handleDownloadTicket}
+              className="btn-primary flex items-center justify-center gap-2 text-sm py-2.5 px-4 w-full sm:w-auto"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+              </svg>
+              Download Ticket
+            </button>
+            <button
+              onClick={handleDownloadQrOnly}
+              className="btn-secondary flex items-center justify-center gap-2 text-sm py-2.5 px-4 w-full sm:w-auto"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v1m0 11v1m5-6h-1m-11 0h-1m13 4a1.5 1.5 0 01-1.5 1.5h-10A1.5 1.5 0 015 15V9a1.5 1.5 0 011.5-1.5h10A1.5 1.5 0 0118 9v6z" />
+              </svg>
+              QR Code Only
+            </button>
+          </div>
         </div>
       )}
 

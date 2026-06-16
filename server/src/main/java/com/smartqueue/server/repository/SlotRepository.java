@@ -13,4 +13,5 @@ public interface SlotRepository extends JpaRepository<Slot, UUID> {
     List<Slot> findByBusinessIdAndIsActiveTrueAndDateOrderByDateAscStartTimeAsc(UUID businessId, LocalDate date);
     List<Slot> findByDateAndIsActiveTrue(LocalDate date);
     List<Slot> findByBusinessIdAndDate(UUID businessId, LocalDate date);
+    boolean existsByBusinessIdAndDateAndStartTimeAndEndTimeAndIsActiveTrue(UUID businessId, LocalDate date, java.time.LocalTime startTime, java.time.LocalTime endTime);
 }

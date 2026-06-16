@@ -38,10 +38,10 @@ export default function QueueBoard() {
         </div>
         <div className="flex items-center gap-2 text-sm bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 px-3.5 py-1.5 rounded-full shadow-sm text-slate-800 dark:text-slate-100">
           <span className="relative flex h-2 w-2">
-            <span className={`${isLive ? 'animate-ping' : ''} absolute inline-flex h-full w-full rounded-full ${isLive ? 'bg-amber-400' : 'bg-red-500'} opacity-75`}></span>
-            <span className={`relative inline-flex rounded-full h-2 w-2 ${isLive ? 'bg-amber-500' : 'bg-red-500'}`}></span>
+            <span className={`${isLive ? 'animate-ping' : ''} absolute inline-flex h-full w-full rounded-full ${isLive ? 'bg-brand-400' : 'bg-red-500'} opacity-75`}></span>
+            <span className={`relative inline-flex rounded-full h-2 w-2 ${isLive ? 'bg-brand-500' : 'bg-red-500'}`}></span>
           </span>
-          <span className={`font-bold ${isLive ? 'text-amber-600 dark:text-amber-400' : 'text-red-550 dark:text-red-400'}`}>
+          <span className={`font-bold ${isLive ? 'text-brand-600 dark:text-brand-400' : 'text-red-550 dark:text-red-400'}`}>
             {isLive ? 'LIVE UPDATES' : 'OFFLINE'}
           </span>
         </div>
@@ -58,13 +58,13 @@ export default function QueueBoard() {
                 onClick={() => setActiveSlot(s)}
                 className={`px-4 py-3 rounded-xl text-left transition-all border flex flex-col justify-between h-[100px] shadow-sm
                   ${activeSlot?.id === s.id
-                    ? 'bg-amber-50/50 dark:bg-amber-950/20 border-amber-500 text-amber-600 dark:text-blue-300'
+                    ? 'bg-brand-50/50 dark:bg-brand-950/20 border-brand-500 text-brand-600 dark:text-blue-300'
                     : 'bg-white dark:bg-slate-900 border-slate-200/80 dark:border-slate-800 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:border-slate-300 dark:hover:border-slate-700'}`}
               >
-                <span className={`text-[10px] uppercase tracking-wider font-bold ${activeSlot?.id === s.id ? 'text-amber-500' : 'text-slate-400 dark:text-slate-500'}`}>
+                <span className={`text-[10px] uppercase tracking-wider font-bold ${activeSlot?.id === s.id ? 'text-brand-500' : 'text-slate-400 dark:text-slate-500'}`}>
                   Slot {index + 1}
                 </span>
-                <span className={`font-mono text-base font-bold leading-none my-1 ${activeSlot?.id === s.id ? 'text-amber-600 dark:text-blue-300' : 'text-slate-700 dark:text-slate-350'}`}>
+                <span className={`font-mono text-base font-bold leading-none my-1 ${activeSlot?.id === s.id ? 'text-brand-600 dark:text-blue-300' : 'text-slate-700 dark:text-slate-350'}`}>
                   {s.start_time.slice(0, 5)} – {s.end_time.slice(0, 5)}
                 </span>
                 <span className="text-[11px] text-slate-400 dark:text-slate-500">
@@ -86,10 +86,10 @@ export default function QueueBoard() {
         ) : (
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {serving.map(b => (
-              <div key={b.id} className="card border-blue-200 dark:border-blue-900/60 bg-amber-50/20 dark:bg-blue-950/10 text-center relative overflow-hidden animate-pulse-slow">
-                <div className="absolute top-0 inset-x-0 h-1 bg-amber-500" />
+              <div key={b.id} className="card border-blue-200 dark:border-blue-900/60 bg-brand-50/20 dark:bg-blue-950/10 text-center relative overflow-hidden animate-pulse-slow">
+                <div className="absolute top-0 inset-x-0 h-1 bg-brand-500" />
                 <p className="text-slate-400 dark:text-slate-500 text-xs uppercase tracking-wider font-bold mb-2">Token</p>
-                <div className="token-display text-amber-600 dark:text-amber-400 font-mono">
+                <div className="token-display text-brand-600 dark:text-brand-400 font-mono">
                   #{String(b.token_number).padStart(3, '0')}
                 </div>
                 <p className="text-slate-700 dark:text-slate-300 text-sm font-semibold mt-2">{b.users?.name || '—'}</p>
@@ -113,7 +113,7 @@ export default function QueueBoard() {
               <p className="text-slate-450 dark:text-slate-500 text-xs mt-1">Position {i + 1}</p>
               <span className={`badge mt-3 border text-[10px] font-bold ${
                 b.status === 'arrived'
-                  ? 'bg-amber-50 dark:bg-blue-950/30 text-amber-600 dark:text-amber-400 border-amber-200 dark:border-amber-900/40'
+                  ? 'bg-brand-50 dark:bg-blue-950/30 text-brand-600 dark:text-brand-400 border-brand-200 dark:border-brand-900/40'
                   : 'bg-slate-50 dark:bg-slate-800 text-slate-500 dark:text-slate-400 border-slate-200 dark:border-slate-700'
               }`}>
                 {b.status === 'arrived' ? 'Checked In' : b.status}

@@ -20,7 +20,10 @@ const CATEGORIES = [
 export default function Directory() {
   const [businesses, setBusinesses] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [search, setSearch] = useState('');
+  const [search, setSearch] = useState(() => {
+    const params = new URLSearchParams(window.location.search);
+    return params.get('search') || '';
+  });
   const [selectedCategory, setSelectedCategory] = useState('all');
 
   useEffect(() => {
@@ -120,7 +123,7 @@ export default function Directory() {
             <div key={biz.id} className="card flex flex-col justify-between hover:border-brand-300 dark:hover:border-brand-800 transition-all duration-300">
               <div>
                 <div className="flex items-start justify-between mb-4">
-                  <div className="w-10 h-10 rounded-full bg-amber-50 dark:bg-amber-950/40 flex items-center justify-center text-xl shadow-inner select-none">
+                  <div className="w-10 h-10 rounded-full bg-brand-50 dark:bg-brand-950/40 flex items-center justify-center text-xl shadow-inner select-none">
                     {CATEGORY_ICONS[biz.category?.toLowerCase()] || CATEGORY_ICONS.default}
                   </div>
                   <span className="badge bg-slate-50 dark:bg-slate-800 text-slate-650 dark:text-slate-450 border border-slate-200/80 dark:border-slate-700/60 capitalize font-semibold text-[10px]">

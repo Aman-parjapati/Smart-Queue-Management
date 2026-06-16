@@ -4,7 +4,7 @@ import api from '../lib/api';
 
 const STATUS_BADGES = {
   pending: 'bg-yellow-50 dark:bg-yellow-900/40 text-yellow-600 dark:text-yellow-400 border-yellow-250 dark:border-yellow-700/40',
-  arrived: 'bg-amber-50 dark:bg-blue-900/40 text-amber-600 dark:text-amber-400 border-blue-200 dark:border-blue-700/40',
+  arrived: 'bg-brand-50 dark:bg-blue-900/40 text-brand-600 dark:text-brand-400 border-blue-200 dark:border-blue-700/40',
   serving: 'bg-emerald-50 dark:bg-emerald-900/40 text-emerald-600 dark:text-emerald-400 border-emerald-250 dark:border-emerald-700/40 animate-pulse',
   done: 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-slate-700',
   skipped: 'bg-red-50 dark:bg-red-900/40 text-red-650 dark:text-red-400 border-red-200 dark:border-red-700/40',

@@ -145,6 +145,18 @@ function SlotsManager({ businessId, slots = [], onRefresh }) {
               onChange={val => setForm(p => ({ ...p, date: val }))}
             />
           </div>
+          <div className="flex items-center gap-2 select-none py-1">
+            <input
+              type="checkbox"
+              id="entire_month"
+              className="w-4 h-4 rounded border-slate-350 dark:border-slate-800 text-brand-600 focus:ring-brand-500 cursor-pointer"
+              checked={form.entire_month || false}
+              onChange={e => setForm(p => ({ ...p, entire_month: e.target.checked }))}
+            />
+            <label htmlFor="entire_month" className="text-xs text-slate-700 dark:text-slate-350 font-medium cursor-pointer">
+              Create for entire month
+            </label>
+          </div>
           <div>
             <label className="block text-xs text-slate-400 mb-1">Start Time</label>
             <input type="time" className="input text-sm py-2.5" value={form.start_time}
@@ -564,24 +576,25 @@ function QRScanner() {
     </div>
   );
 }
-
 // ── Staff Manager (admin only) ───────────────────────────────
-function StaffManager() {
+function StaffManager({ businessId }) {
   const [staffList, setStaffList] = useState([]);
   const [form, setForm]   = useState({ name: '', email: '', phone: '', password: '' });
   const [loading, setLoading] = useState(false);
   const [fetching, setFetching] = useState(true);
 
   function fetchStaff() {
-    api.get('/auth/staff').then(r => setStaffList(r.data)).finally(() => setFetching(false));
+    if (!businessId) return;
+    setFetching(true);
+    api.get(`/auth/staff?businessId=${businessId}`).then(r => setStaffList(r.data)).finally(() => setFetching(false));
   }
-  useEffect(() => { fetchStaff(); }, []);
+  useEffect(() => { fetchStaff(); }, [businessId]);
 
   async function handleCreate(e) {
     e.preventDefault();
     setLoading(true);
     try {
-      await api.post('/auth/staff', form);
+      await api.post('/auth/staff', { ...form, business_id: businessId });
       toast.success(`Staff account created for ${form.name}`);
       setForm({ name: '', email: '', phone: '', password: '' });
       fetchStaff();
@@ -823,7 +836,7 @@ function BusinessSelector({ businesses, activeBiz, setActiveBiz, onAddBusiness }
           onClick={() => setIsOpen(!isOpen)}
           className="input flex items-center justify-between w-full text-left bg-white dark:bg-surface-900 border border-slate-200 dark:border-slate-700/60 rounded-xl px-4 py-2.5 text-slate-800 dark:text-slate-200 hover:border-brand-500/50 transition-all font-medium"
         >
-          <span>{activeBiz?.name || 'Select Business'}</span>
+          <span>{activeBiz?.name ? `${activeBiz.name}${activeBiz.branch ? ` (${activeBiz.branch})` : ''}` : 'Select Business'}</span>
           <svg
             className={`w-4 h-4 text-slate-400 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}
             fill="none"
@@ -849,7 +862,7 @@ function BusinessSelector({ businesses, activeBiz, setActiveBiz, onAddBusiness }
                     ? 'bg-brand-600/10 dark:bg-brand-600/20 text-brand-600 dark:text-brand-300 font-semibold' 
                     : 'text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800/50 hover:text-slate-900 dark:hover:text-white'}`}
               >
-                <span>{b.name}</span>
+                <span>{b.name}{b.branch ? ` (${b.branch})` : ''}</span>
                 {activeBiz?.id === b.id && (
                   <svg className="w-4 h-4 text-brand-500 dark:text-brand-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M5 13l4 4L19 7" />
@@ -886,18 +899,23 @@ export default function AdminDashboard() {
   const isLive = connected && slots.length > 0;
 
   useEffect(() => {
-    api.get('/businesses').then(r => {
-      const filtered = user?.role === 'admin'
-        ? r.data.filter(b => b.owner_id === user.id)
-        : r.data.filter(b => b.id === user.business_id);
-      
-      setBusinesses(filtered);
-      if (filtered.length > 0) {
-        setActiveBiz(filtered[0]);
-      } else {
-        setActiveBiz(null);
-      }
-    });
+    api.get('/businesses')
+      .then(r => {
+        const filtered = user?.role === 'admin'
+          ? r.data.filter(b => b.owner_id === user.id)
+          : r.data.filter(b => b.id === user.business_id);
+        
+        setBusinesses(filtered);
+        if (filtered.length > 0) {
+          setActiveBiz(filtered[0]);
+        } else {
+          setActiveBiz(null);
+        }
+      })
+      .catch(err => {
+        console.error("Failed to fetch businesses:", err);
+        toast.error("Network error: Could not connect to the backend server.");
+      });
   }, [user]);
 
   const refreshSlots = () => {
@@ -1024,8 +1042,9 @@ export default function AdminDashboard() {
           onRefresh={refreshSlots}
         />
       )}
+
       {tab === 'checkin'   && <QRScanner />}
-      {tab === 'staff'     && isAdmin && <StaffManager />}
+      {tab === 'staff'     && isAdmin && <StaffManager businessId={activeBiz?.id} />}
     </div>
   );
 }

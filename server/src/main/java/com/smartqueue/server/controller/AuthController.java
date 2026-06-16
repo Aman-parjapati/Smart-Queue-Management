@@ -93,6 +93,7 @@ public class AuthController {
         private String phone;
         @NotBlank(message = "password is required")
         private String password;
+        private UUID business_id;
     }
 
     // ── CUSTOMER register / login ────────────────────────────────
@@ -323,10 +324,20 @@ public class AuthController {
     @PreAuthorize("hasRole('admin')")
     public ResponseEntity<?> createStaff(@AuthenticationPrincipal UserPrincipal principal,
                                          @Valid @RequestBody CreateStaffRequest body) {
-        Optional<Business> bizOpt = businessRepository.findByOwnerId(principal.getId());
-        if (bizOpt.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(Map.of("error", "No business found for this admin"));
+        UUID targetBusinessId = body.getBusiness_id();
+        if (targetBusinessId == null) {
+            Optional<Business> bizOpt = businessRepository.findByOwnerId(principal.getId());
+            if (bizOpt.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                        .body(Map.of("error", "No business found for this admin"));
+            }
+            targetBusinessId = bizOpt.get().getId();
+        } else {
+            Optional<Business> bizOpt = businessRepository.findById(targetBusinessId);
+            if (bizOpt.isEmpty() || !bizOpt.get().getOwnerId().equals(principal.getId())) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                        .body(Map.of("error", "Access denied"));
+            }
         }
 
         if (staffRepository.existsByEmail(body.getEmail())) {
@@ -334,13 +345,12 @@ public class AuthController {
                     .body(Map.of("error", "Email already in use"));
         }
 
-        Business biz = bizOpt.get();
         Staff staff = Staff.builder()
                 .name(body.getName())
                 .email(body.getEmail())
                 .phone(body.getPhone())
                 .passwordHash(passwordEncoder.encode(body.getPassword()))
-                .businessId(biz.getId())
+                .businessId(targetBusinessId)
                 .adminId(principal.getId())
                 .build();
 
@@ -357,13 +367,24 @@ public class AuthController {
 
     @GetMapping("/staff")
     @PreAuthorize("hasRole('admin')")
-    public ResponseEntity<?> listStaff(@AuthenticationPrincipal UserPrincipal principal) {
-        Optional<Business> bizOpt = businessRepository.findByOwnerId(principal.getId());
-        if (bizOpt.isEmpty()) {
-            return ResponseEntity.ok(Collections.emptyList());
+    public ResponseEntity<?> listStaff(@AuthenticationPrincipal UserPrincipal principal,
+                                       @RequestParam(required = false) UUID businessId) {
+        UUID targetBusinessId = businessId;
+        if (targetBusinessId == null) {
+            Optional<Business> bizOpt = businessRepository.findByOwnerId(principal.getId());
+            if (bizOpt.isEmpty()) {
+                return ResponseEntity.ok(Collections.emptyList());
+            }
+            targetBusinessId = bizOpt.get().getId();
+        } else {
+            Optional<Business> bizOpt = businessRepository.findById(targetBusinessId);
+            if (bizOpt.isEmpty() || !bizOpt.get().getOwnerId().equals(principal.getId())) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                        .body(Map.of("error", "Access denied"));
+            }
         }
 
-        List<Staff> staffList = staffRepository.findByBusinessIdOrderByCreatedAt(bizOpt.get().getId());
+        List<Staff> staffList = staffRepository.findByBusinessIdOrderByCreatedAt(targetBusinessId);
         List<Map<String, Object>> response = new ArrayList<>();
         for (Staff s : staffList) {
             Map<String, Object> map = new HashMap<>();
@@ -382,14 +403,15 @@ public class AuthController {
     @PreAuthorize("hasRole('admin')")
     public ResponseEntity<?> deleteStaff(@AuthenticationPrincipal UserPrincipal principal,
                                          @PathVariable UUID id) {
-        Optional<Business> bizOpt = businessRepository.findByOwnerId(principal.getId());
-        if (bizOpt.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                    .body(Map.of("error", "No business found"));
+        Optional<Staff> staffOpt = staffRepository.findById(id);
+        if (staffOpt.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("error", "Staff member not found"));
         }
 
-        Optional<Staff> staffOpt = staffRepository.findById(id);
-        if (staffOpt.isEmpty() || !staffOpt.get().getBusinessId().equals(bizOpt.get().getId())) {
+        Staff staff = staffOpt.get();
+        Optional<Business> bizOpt = businessRepository.findById(staff.getBusinessId());
+        if (bizOpt.isEmpty() || !bizOpt.get().getOwnerId().equals(principal.getId())) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
                     .body(Map.of("error", "Access denied"));
         }

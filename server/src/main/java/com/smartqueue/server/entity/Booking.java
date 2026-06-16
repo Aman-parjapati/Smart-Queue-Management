@@ -40,7 +40,7 @@ public class Booking {
     @Column(name = "token_number", nullable = false)
     private Integer tokenNumber;
 
-    @Column(name = "qr_code")
+    @Column(name = "qr_code", columnDefinition = "TEXT")
     private String qrCode;
 
     @Column(nullable = false)
