@@ -1,6 +1,6 @@
 # SmartQueue — Skip the Wait
 
-A full-stack real-time queue management system for clinics, salons, government offices and small hospitals. Customers book slots online, get a token with a QR code, and track their queue position live — no more guessing how long the wait is.
+A full-stack real-time queue management system for clinics, salons, government offices and small branches. Customers book slots online, get a token with a QR code, and track their queue position live.
 
 ---
 
@@ -8,57 +8,63 @@ A full-stack real-time queue management system for clinics, salons, government o
 
 | Layer | Tech |
 |---|---|
-| Frontend | React + Vite + Tailwind CSS |
-| Backend | Node.js + Express |
-| Real-time | SSE (Server-Sent Events) |
-| Database | Supabase (Postgres) |
-| Cache | Upstash Redis |
-| Auth | JWT + bcrypt |
-| SMS | Twilio |
-| QR Code | `qrcode` npm |
-| Deploy | Vercel (frontend) + Railway (backend) |
+| **Frontend** | React + Vite + Tailwind CSS |
+| **Backend** | Java 17+ / Spring Boot 3.x (Spring Security, Spring Data JPA, Hibernate) |
+| **Real-time** | SSE (Server-Sent Events) |
+| **Database** | PostgreSQL / Supabase |
+| **Auth** | JWT + BCrypt |
+| **SMS/Email** | Twilio & Spring Mail (Mocked in console by default) |
+| **QR Code** | ZXing (Backend generation) + `html5-qrcode` (Frontend scanner) |
 
 ---
 
 ## Quick Start
 
-### 1. Clone & install
+### 1. Clone the repository
 
 ```bash
 git clone <your-repo>
 cd smart-queue
-npm install          # root
-cd server && npm install
-cd ../client && npm install
 ```
 
-### 2. Set up Supabase
+### 2. Set up the Database
 
-1. Create a project at [supabase.com](https://supabase.com)
-2. Go to **SQL Editor** and run `server/schema.sql`
-3. Copy your project URL and anon key
+1. Start your local PostgreSQL server or create a project at [supabase.com](https://supabase.com).
+2. Create a database named `smart-queue-management`.
+3. Run the database structure script `schema.sql` located at the root directory to set up the initial tables.
 
-### 3. Set up Upstash Redis
+### 3. Configure the Backend
 
-1. Create a Redis database at [upstash.com](https://upstash.com)
-2. Copy the REST URL and token
+Edit the properties in `server/src/main/resources/application.properties`:
 
-### 4. Configure environment
-
-```bash
-cp server/.env.example server/.env
-# Fill in all values
+```properties
+spring.datasource.url=jdbc:postgresql://localhost:5432/smart-queue-management
+spring.datasource.username=postgres
+spring.datasource.password=12345
 ```
 
-### 5. Run
+### 4. Run the Application
+
+You can run both front-end and back-end concurrently from the root directory:
 
 ```bash
-# From root — runs both server and client
+npm install
 npm run dev
+```
 
-# Or separately:
-cd server && npm run dev    # http://localhost:5000
-cd client && npm run dev    # http://localhost:5173
+Or run them in separate terminals:
+
+**Backend (Spring Boot):**
+```bash
+cd server
+.\mvnw.cmd spring-boot:run
+```
+
+**Frontend (React/Vite):**
+```bash
+cd client
+npm install
+npm run dev
 ```
 
 ---
@@ -67,165 +73,64 @@ cd client && npm run dev    # http://localhost:5173
 
 ```
 smart-queue/
-├── client/                     # React + Vite
+├── client/                     # React + Vite Client
 │   └── src/
 │       ├── pages/
-│       │   ├── Home.jsx         # Browse businesses
+│       │   ├── Home.jsx         # Browse business directories
 │       │   ├── Login.jsx
 │       │   ├── Register.jsx
-│       │   ├── BookSlot.jsx     # Pick date + slot
-│       │   ├── MyToken.jsx      # Live queue pos + QR
+│       │   ├── BookSlot.jsx     # Select date + slot card
+│       │   ├── MyToken.jsx      # Queue position tracker, download options & QR
 │       │   ├── AdminDashboard.jsx
-│       │   └── QueueBoard.jsx   # Public display
+│       │   └── QueueBoard.jsx   # Live TV display view
 │       ├── components/
 │       │   └── Layout.jsx
 │       ├── hooks/
-│       │   └── useSSE.js        # SSE connection hook
+│       │   └── useSSE.js        # EventSource connection hook
 │       └── lib/
-│           ├── api.js           # Axios + JWT inject
-│           └── AuthContext.jsx
+│           └── api.js           # Axios instance with JWT interceptor
 │
-└── server/                     # Node.js + Express
-    ├── schema.sql               # Run in Supabase
-    └── src/
-        ├── routes/
-        │   ├── auth.js
-        │   ├── businesses.js
-        │   ├── slots.js
-        │   ├── bookings.js
-        │   ├── queue.js         # SSE endpoint
-        │   └── analytics.js
-        ├── controllers/
-        ├── middleware/
-        │   ├── auth.js          # JWT verify
-        │   └── rateLimiter.js
-        ├── services/
-        │   ├── sseService.js    # Broadcast engine
-        │   ├── queueService.js  # Redis cache + logic
-        │   ├── twilioService.js # SMS/WhatsApp
-        │   └── qrService.js    # QR generation
-        └── db/
-            ├── supabase.js
-            └── redis.js
+└── server/                     # Java Spring Boot Server
+    ├── src/main/java/com/smartqueue/server/
+    │   ├── config/              # Security configurations & CORS
+    │   ├── controller/          # REST Endpoints (Auth, Booking, Slot, etc.)
+    │   ├── entity/              # JPA Model Definitions (User, Business, Slot, Booking)
+    │   ├── repository/          # JpaRepository Interfaces
+    │   ├── security/            # JWT Authorization Filters
+    │   └── service/             # Logic services (SSE, QR, Twilio, Email)
+    └── src/main/resources/
+        └── application.properties # Server database & configuration properties
 ```
 
 ---
 
-## API Reference
+## Key Features
 
-### Auth
-| Method | Path | Description |
-|---|---|---|
-| POST | `/api/auth/register` | Create account |
-| POST | `/api/auth/login` | Login, get JWT |
-| GET | `/api/auth/me` | Get current user |
+### 📅 Batch Slot Creation
+Admins can check **"Create for entire month"** on the slot generation form. The server automatically generates active slots day-by-day from the selected date to the last day of the calendar month, bypassing duplicates and rejecting active time conflicts with `400 Bad Request`.
 
-### Businesses
-| Method | Path | Auth |
-|---|---|---|
-| GET | `/api/businesses` | Public |
-| GET | `/api/businesses/:id` | Public |
-| POST | `/api/businesses` | Admin |
-| PUT | `/api/businesses/:id` | Admin |
+### 🏢 Multi-Branch & Staff Differentiation
+Admins owning multiple business locations or branches (e.g., Downtown branch) can toggle cleanly between them. The Staff Management panel correctly filters, displays, and updates staff rosters associated exclusively with the active branch instead of returning overlapping listings.
 
-### Slots
-| Method | Path | Auth |
-|---|---|---|
-| GET | `/api/slots/business/:id?date=YYYY-MM-DD` | Public |
-| POST | `/api/slots` | Admin/Staff |
-
-### Bookings
-| Method | Path | Auth |
-|---|---|---|
-| POST | `/api/bookings` | Customer |
-| GET | `/api/bookings/my` | Customer |
-| GET | `/api/bookings/:id` | Customer |
-| POST | `/api/bookings/checkin` | Admin/Staff |
-
-### Queue (Real-time)
-| Method | Path | Auth |
-|---|---|---|
-| GET | `/api/queue/live/:businessId` | Public (SSE) |
-| GET | `/api/queue/status/:slotId` | Public |
-| POST | `/api/queue/next` | Admin/Staff |
-| POST | `/api/queue/skip` | Admin/Staff |
-
-### Analytics
-| Method | Path | Auth |
-|---|---|---|
-| GET | `/api/analytics/:businessId?date=YYYY-MM-DD` | Admin/Staff |
+### 🎫 Interactive Ticket & QR Download
+Customers can view their booking token and download receipt information on demand:
+- **Download Ticket**: Generates a high-quality shareable `.png` card rendering the business brand, token number, slot timing details, and check-in QR code onto a unified canvas ticket.
+- **QR Code Only**: Downloads the raw high-resolution base64 PNG check-in QR code immediately.
 
 ---
 
-## Deployment
-
-### Frontend → Vercel
-
-```bash
-cd client
-npm run build
-# Push to GitHub → Import in Vercel
-# Set VITE_API_URL env var if needed
-```
-
-### Backend → Railway
-
-1. Push to GitHub
-2. Create Railway project from repo
-3. Set root to `/server`
-4. Add all env vars from `.env.example`
-5. Deploy
-
----
-
-## Features
-
-### Customer Flow
-1. Browse businesses on Home page
-2. Click "Book Slot" → choose date + time slot
-3. Confirm booking → receive token + QR code
-4. Open `/token/:id` to see live queue position
-5. Show QR to staff on arrival for check-in
-6. Receive SMS when 2 tokens away (via Twilio)
-
-### Admin/Staff Flow
-1. Login with `admin` or `staff` role
-2. Go to `/admin` dashboard
-3. **Queue tab** — call next, skip tokens, see live queue
-4. **Slots tab** — create new time slots
-5. **Analytics tab** — today's served/skipped/pending counts + peak hour chart
-6. **Check-in tab** — manual check-in by booking ID
-
-### Public Queue Board
-- Visit `/board/:businessId` for a public display screen (TV-friendly)
-- Shows "Now Serving" + full waiting queue
-- Auto-updates via SSE — no refresh needed
-
----
-
-## How SSE Works
+## Real-Time SSE Flow
 
 ```
-Admin clicks "Call Next"
-        ↓
-POST /api/queue/next
-        ↓
-Backend updates DB → invalidates Redis cache
-        ↓
-broadcastQueue() writes to all open SSE connections
-        ↓
-Every connected browser receives the update instantly
-        ↓
-React state updates → UI re-renders
+Admin updates state (e.g. Call Next, Check-in)
+                 ↓
+      POST /api/bookings/checkin
+                 ↓
+   Database updates status in transactions
+                 ↓
+  Invalidates cache and updates QueueService
+                 ↓
+   SseService broadcasts JSON stream to SSE
+                 ↓
+EventSource in client updates local state in React
 ```
-
-No WebSockets, no Socket.io. EventSource is built into every browser.
-
----
-
-## Add-ons (after core)
-
-- **AI wait prediction** — Python microservice (scikit-learn) using historical queue_events data
-- **Walk-in token** — admin generates token on-site without prior booking
-- **Multi-branch** — `branch` field already in businesses table
-- **Staff analytics** — tokens served per staff member per hour
