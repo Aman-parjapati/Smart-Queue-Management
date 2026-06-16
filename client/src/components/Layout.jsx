@@ -94,7 +94,22 @@ export default function Layout() {
   );
 
   return (
-    <div className="relative min-h-screen flex flex-col">
+    <div className="relative min-h-screen flex flex-col overflow-x-hidden">
+      {/* Ambient background glows */}
+      <div className="fixed inset-0 pointer-events-none -z-10 overflow-hidden">
+        {/* Top left blue glow */}
+        <div className="absolute top-[-10%] left-[-10%] w-[60%] md:w-[45%] aspect-square rounded-full bg-gradient-to-br from-blue-300/35 to-sky-300/20 dark:from-blue-650/15 dark:to-indigo-600/10 blur-[100px] md:blur-[150px] animate-float-slow" />
+        
+        {/* Middle right soft purple/blue glow */}
+        <div className="absolute top-[25%] right-[-15%] w-[55%] md:w-[40%] aspect-square rounded-full bg-gradient-to-br from-indigo-300/30 to-purple-300/20 dark:from-indigo-650/15 dark:to-purple-900/10 blur-[120px] md:blur-[160px] animate-float-medium" />
+        
+        {/* Lower left sky blue/teal glow */}
+        <div className="absolute top-[55%] left-[-10%] w-[50%] md:w-[35%] aspect-square rounded-full bg-gradient-to-tr from-sky-300/25 to-blue-200/20 dark:from-sky-800/10 dark:to-blue-900/10 blur-[100px] md:blur-[140px] animate-float-slow" />
+
+        {/* Bottom right blue glow */}
+        <div className="absolute bottom-[-5%] right-[10%] w-[45%] md:w-[30%] aspect-square rounded-full bg-gradient-to-tl from-blue-300/25 to-indigo-300/15 dark:from-blue-700/10 dark:to-indigo-900/10 blur-[100px] md:blur-[130px] animate-float-medium" />
+      </div>
+
       {/* Nav */}
       <header className="sticky top-0 z-50 border-b border-surface-200 dark:border-surface-700/80 bg-surface-50/80 dark:bg-surface-950/80 backdrop-blur-md relative">
         <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">

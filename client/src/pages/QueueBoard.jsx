@@ -13,7 +13,7 @@ export default function QueueBoard() {
     api.get(`/businesses/${businessId}`).then(r => setBusiness(r.data)).catch(() => {});
     
     // Fetch today's slots for the business
-    const today = new Date().toISOString().split('T')[0];
+    const today = new Date(Date.now() - new Date().getTimezoneOffset() * 60000).toISOString().split('T')[0];
     api.get(`/slots/business/${businessId}?date=${today}`)
        .then(r => {
          setSlots(r.data);

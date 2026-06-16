@@ -38,7 +38,7 @@ export default function Home() {
   useEffect(() => {
     api.get('/businesses')
       .then(r => setBusinesses(r.data))
-      .catch(() => {})
+      .catch(() => { })
       .finally(() => setLoading(false));
   }, []);
 
@@ -126,7 +126,7 @@ export default function Home() {
           <div className="inline-flex items-center gap-2 bg-slate-100/50 dark:bg-slate-900/30 border border-slate-200 dark:border-slate-800 rounded-full px-4 py-1.5 text-slate-600 dark:text-slate-400 text-xs font-semibold tracking-wider uppercase shadow-sm">
             THE FUTURE OF QUEUE MANAGEMENT
           </div>
-          
+
           <h1 className="font-display text-4xl sm:text-6xl font-black tracking-tight leading-tight text-slate-900 dark:text-white">
             Skip the wait.<br />
             <span className="bg-gradient-to-r from-indigo-500 to-purple-500 dark:from-indigo-400 dark:to-purple-400 bg-clip-text text-transparent">Own</span> your{' '}
@@ -179,13 +179,13 @@ export default function Home() {
                   </span>
                 </div>
               </div>
-              
+
               <div className="border-t border-slate-100 dark:border-slate-800/80 my-4" />
 
               <div className="grid grid-cols-2 gap-4 py-2 text-center relative">
                 {/* Vertical Divider line */}
                 <div className="absolute top-2 bottom-2 left-1/2 -translate-x-1/2 w-px bg-slate-100 dark:bg-slate-800/80" />
-                
+
                 <div>
                   <p className="text-slate-400 dark:text-slate-500 text-[10px] uppercase font-bold tracking-wider mb-2">Your Position</p>
                   <p className="text-3xl font-extrabold text-slate-800 dark:text-white font-mono">
@@ -243,7 +243,7 @@ export default function Home() {
           <p className="text-slate-500 dark:text-slate-400 mt-2">
             Search for registered clinics, offices, and stores to secure your spot today.
           </p>
-          
+
           {/* Search container */}
           <div className="mt-8 max-w-md mx-auto relative">
             <input
@@ -272,7 +272,7 @@ export default function Home() {
           <div className="text-center py-16 text-slate-400 font-medium">No businesses found. Try another search.</div>
         ) : (
           <div className="space-y-8 animate-fade-in px-4">
-            
+
             {/* Wrapper that only contains the slider and is relative */}
             <div className="relative">
               {filtered.length > 3 && (
@@ -379,7 +379,7 @@ export default function Home() {
       </section>
 
       {/* ── 4. FEATURES & TRACKING SIMULATOR (id="features") ── */}
-      <section id="features" className="bg-surface-100/50 dark:bg-surface-950/50 border-y border-surface-200 dark:border-surface-700/80 py-20">
+      <section id="features" className="bg-glass-section border-y border-surface-200 dark:border-surface-700/80 py-20">
         <div className="max-w-6xl mx-auto px-4 grid lg:grid-cols-12 gap-12 items-center">
           {/* Left Column: Live updates simulator box */}
           <div className="lg:col-span-5 flex justify-center">
@@ -562,7 +562,7 @@ export default function Home() {
       </section>
 
       {/* ── 6. ANALYTICS SAAS DASHBOARD MOCKUP ── */}
-      <section className="bg-surface-100/50 dark:bg-surface-950/50 border-y border-surface-200 dark:border-surface-700/80 py-20">
+      <section className="bg-glass-section border-y border-surface-200 dark:border-surface-700/80 py-20">
         <div className="max-w-6xl mx-auto px-4 grid lg:grid-cols-12 gap-12 items-center">
           <div className="lg:col-span-6 space-y-6">
             <p className="text-brand-600 dark:text-brand-400 text-xs font-extrabold uppercase tracking-widest">Analytics & Insights</p>
@@ -640,11 +640,10 @@ export default function Home() {
           style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
         >
           {/* Plan 1 */}
-          <div className={`card flex flex-col justify-between p-8 relative w-[285px] sm:w-[340px] flex-shrink-0 snap-center md:w-auto md:shrink transition-all duration-300 ease-in-out ${
-            activePricingIndex === 0 
-              ? 'scale-105 z-10 border-blue-500 shadow-xl' 
-              : 'scale-95 opacity-85 border-surface-200/60 dark:border-surface-700/80 md:scale-100 md:opacity-100'
-          }`}>
+          <div className={`card flex flex-col justify-between p-8 relative w-[285px] sm:w-[340px] flex-shrink-0 snap-center md:w-auto md:shrink transition-all duration-300 ease-in-out ${activePricingIndex === 0
+            ? 'scale-105 z-10 border-blue-500 shadow-xl'
+            : 'scale-95 opacity-85 border-surface-200/60 dark:border-surface-700/80 md:scale-100 md:opacity-100'
+            }`}>
             <div>
               <p className="text-slate-400 dark:text-slate-500 text-xs font-bold uppercase tracking-wider mb-2">Starter</p>
               <div className="flex items-baseline gap-1 mb-6">
@@ -667,11 +666,10 @@ export default function Home() {
           </div>
 
           {/* Plan 2: Business (Popular) */}
-          <div className={`card flex flex-col justify-between p-8 relative w-[285px] sm:w-[340px] flex-shrink-0 snap-center md:w-auto md:shrink transition-all duration-300 ease-in-out ${
-            activePricingIndex === 1
-              ? 'scale-105 z-10 border-blue-500 shadow-xl'
-              : 'scale-95 opacity-85 border-surface-200/60 dark:border-surface-700/80 md:scale-105 md:z-10 md:border-blue-500 md:shadow-xl md:opacity-100'
-          }`}>
+          <div className={`card flex flex-col justify-between p-8 relative w-[285px] sm:w-[340px] flex-shrink-0 snap-center md:w-auto md:shrink transition-all duration-300 ease-in-out ${activePricingIndex === 1
+            ? 'scale-105 z-10 border-blue-500 shadow-xl'
+            : 'scale-95 opacity-85 border-surface-200/60 dark:border-surface-700/80 md:scale-105 md:z-10 md:border-blue-500 md:shadow-xl md:opacity-100'
+            }`}>
             <div className="absolute top-0 right-1/2 translate-x-1/2 -translate-y-1/2 bg-brand-500 text-white text-[10px] font-bold tracking-widest uppercase px-3 py-1 rounded-full">
               POPULAR
             </div>
@@ -699,11 +697,10 @@ export default function Home() {
           </div>
 
           {/* Plan 3 */}
-          <div className={`card flex flex-col justify-between p-8 relative w-[285px] sm:w-[340px] flex-shrink-0 snap-center md:w-auto md:shrink transition-all duration-300 ease-in-out ${
-            activePricingIndex === 2
-              ? 'scale-105 z-10 border-blue-500 shadow-xl'
-              : 'scale-95 opacity-85 border-surface-200/60 dark:border-surface-700/80 md:scale-100 md:opacity-100'
-          }`}>
+          <div className={`card flex flex-col justify-between p-8 relative w-[285px] sm:w-[340px] flex-shrink-0 snap-center md:w-auto md:shrink transition-all duration-300 ease-in-out ${activePricingIndex === 2
+            ? 'scale-105 z-10 border-blue-500 shadow-xl'
+            : 'scale-95 opacity-85 border-surface-200/60 dark:border-surface-700/80 md:scale-100 md:opacity-100'
+            }`}>
             <div>
               <p className="text-slate-400 dark:text-slate-500 text-xs font-bold uppercase tracking-wider mb-2">Enterprise</p>
               <div className="flex items-baseline gap-1 mb-6">
@@ -730,7 +727,7 @@ export default function Home() {
       </section>
 
       {/* ── 8. FAQS SECTION (id="faq") ── */}
-      <section id="faq" className="bg-surface-100 dark:bg-surface-950 py-20">
+      <section id="faq" className="bg-glass-section py-20">
         <div className="max-w-4xl mx-auto px-4">
           <div className="text-center mb-12">
             <p className="text-brand-600 dark:text-brand-400 text-xs font-bold uppercase tracking-widest mb-2">FAQ</p>
@@ -756,9 +753,8 @@ export default function Home() {
                   </span>
                 </button>
                 <div
-                  className={`grid transition-all duration-300 ease-in-out overflow-hidden ${
-                    openFaq === i ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'
-                  }`}
+                  className={`grid transition-all duration-300 ease-in-out overflow-hidden ${openFaq === i ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'
+                    }`}
                 >
                   <div className="min-h-0">
                     <p className="text-slate-500 dark:text-slate-400 text-sm leading-relaxed pt-3">
@@ -789,7 +785,7 @@ export default function Home() {
                 ✕
               </button>
             </div>
-            
+
             <form onSubmit={handleInquirySubmit} className="p-6 space-y-4">
               <div>
                 <label className="block text-xs text-slate-600 dark:text-slate-400 mb-1.5 font-bold uppercase tracking-wider">Name</label>
@@ -835,7 +831,7 @@ export default function Home() {
                   onChange={e => setInquiryForm(p => ({ ...p, description: e.target.value }))}
                 />
               </div>
-              
+
               <div className="flex gap-3 pt-2">
                 <button
                   type="button"

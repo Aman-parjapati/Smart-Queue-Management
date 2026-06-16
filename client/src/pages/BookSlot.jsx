@@ -46,7 +46,7 @@ export default function BookSlot() {
   const [business, setBusiness] = useState(null);
   const [slots, setSlots]       = useState([]);
   const [selected, setSelected] = useState(null);
-  const [date, setDate]         = useState(new Date().toISOString().split('T')[0]);
+  const [date, setDate]         = useState(new Date(Date.now() - new Date().getTimezoneOffset() * 60000).toISOString().split('T')[0]);
   const [loading, setLoading]   = useState(false);
 
   useEffect(() => {
@@ -103,7 +103,7 @@ export default function BookSlot() {
         <label className="block text-sm text-slate-700 dark:text-slate-350 mb-1.5">Select Date</label>
         <CustomDatePicker
           value={date}
-          min={new Date().toISOString().split('T')[0]}
+          min={new Date(Date.now() - new Date().getTimezoneOffset() * 60000).toISOString().split('T')[0]}
           onChange={val => { setDate(val); setSelected(null); }}
         />
       </div>

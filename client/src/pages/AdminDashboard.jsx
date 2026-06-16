@@ -70,7 +70,7 @@ function AnalyticsPanel({ businessId }) {
 // ── Slots Manager ────────────────────────────────────────────
 function SlotsManager({ businessId, slots = [], onRefresh }) {
   const [form, setForm] = useState({ 
-    date: new Date().toISOString().split('T')[0], 
+    date: new Date(Date.now() - new Date().getTimezoneOffset() * 60000).toISOString().split('T')[0], 
     start_time: '09:00', 
     end_time: '17:00', 
     max_capacity: 20 
@@ -141,7 +141,7 @@ function SlotsManager({ businessId, slots = [], onRefresh }) {
             <label className="block text-xs text-slate-400 mb-1">Date</label>
             <CustomDatePicker
               value={form.date}
-              min={new Date().toISOString().split('T')[0]}
+              min={new Date(Date.now() - new Date().getTimezoneOffset() * 60000).toISOString().split('T')[0]}
               onChange={val => setForm(p => ({ ...p, date: val }))}
             />
           </div>
@@ -699,7 +699,7 @@ function CreateBusinessForm({ onCreated, onCancel }) {
       
       // Auto-create default slots for today
       try {
-        const today = new Date().toISOString().split('T')[0];
+        const today = new Date(Date.now() - new Date().getTimezoneOffset() * 60000).toISOString().split('T')[0];
         await api.post('/slots', {
           business_id: data.id,
           date: today,
@@ -920,7 +920,7 @@ export default function AdminDashboard() {
 
   const refreshSlots = () => {
     if (!activeBiz) return;
-    const today = new Date().toISOString().split('T')[0];
+    const today = new Date(Date.now() - new Date().getTimezoneOffset() * 60000).toISOString().split('T')[0];
     api.get(`/slots/business/${activeBiz.id}?date=${today}`)
        .then(r => {
          setSlots(r.data);
