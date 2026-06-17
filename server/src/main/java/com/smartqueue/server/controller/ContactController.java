@@ -5,6 +5,7 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -15,9 +16,12 @@ import java.util.Map;
 public class ContactController {
 
     private final EmailService emailService;
+    private final String inquiryEmail;
 
-    public ContactController(EmailService emailService) {
+    public ContactController(EmailService emailService,
+                             @Value("${app.contact.inquiry-email}") String inquiryEmail) {
         this.emailService = emailService;
+        this.inquiryEmail = inquiryEmail;
     }
 
     @Data
@@ -81,7 +85,7 @@ public class ContactController {
             new java.util.Date().toString()
         );
 
-        emailService.sendEmail("aman150875@gmail.com", "New Inquiry for " + body.getPlan(), emailBody);
+        emailService.sendEmail(inquiryEmail, "New Inquiry for " + body.getPlan(), emailBody);
 
         return ResponseEntity.ok(Map.of(
             "success", true,

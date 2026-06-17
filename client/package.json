@@ -2,6 +2,7 @@
   "name": "smart-queue-client",
   "version": "1.0.0",
   "private": true,
+  "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
@@ -14,7 +15,7 @@
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-hot-toast": "^2.4.1",
-    "react-router-dom": "^6.20.1",
+    "react-router-dom": "^6.28.1",
     "three": "^0.184.0"
   },
   "devDependencies": {
@@ -24,6 +25,6 @@
     "autoprefixer": "^10.4.16",
     "postcss": "^8.4.31",
     "tailwindcss": "^3.3.5",
-    "vite": "^5.0.2"
+    "vite": "^6.4.3"
   }
 }

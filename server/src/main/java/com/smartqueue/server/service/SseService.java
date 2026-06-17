@@ -62,7 +62,12 @@ public class SseService {
             return;
         }
 
-        bizClients.forEach((clientId, client) -> {
+        java.util.Iterator<Map.Entry<String, SseClient>> iterator = bizClients.entrySet().iterator();
+        while (iterator.hasNext()) {
+            Map.Entry<String, SseClient> entry = iterator.next();
+            String clientId = entry.getKey();
+            SseClient client = entry.getValue();
+
             // Only send to clients who either haven't filtered by slotId,
             // or whose slotId matches the updated data's slotId.
             if (client.getSlotId() == null || client.getSlotId().equals(slotId)) {
@@ -72,10 +77,15 @@ public class SseService {
                             .name("message");
                     client.getEmitter().send(event);
                 } catch (IOException e) {
-                    // Client disconnected, cleanup
-                    removeClient(businessId, clientId);
+                    // Client disconnected, cleanup using iterator to avoid ConcurrentModificationException
+                    iterator.remove();
+                    log.info("SSE client {} disconnected from business {} (cleanup during broadcast)", clientId, businessId);
                 }
             }
-        });
+        }
+
+        if (bizClients.isEmpty()) {
+            clients.remove(businessId);
+        }
     }
 }

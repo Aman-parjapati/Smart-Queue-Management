@@ -3,6 +3,18 @@ import react from '@vitejs/plugin-react';
 
 export default defineConfig({
   plugins: [react()],
+  esbuild: {
+    supported: {
+      'destructuring': true
+    }
+  },
+  optimizeDeps: {
+    esbuildOptions: {
+      supported: {
+        'destructuring': true
+      }
+    }
+  },
   server: {
     port: 5173,
     proxy: {

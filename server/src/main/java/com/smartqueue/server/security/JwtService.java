@@ -20,17 +20,15 @@ public class JwtService {
 
     public JwtService(@Value("${app.jwt.secret}") String secret) {
         if (secret == null || secret.trim().isEmpty() || secret.equals("sq_fallback_secret_key_which_must_be_at_least_256_bits_long_so_jwt_validation_succeeds_without_exception")) {
-            System.out.println("WARNING: JWT_SECRET environment variable is not set. Generating a secure random key for this session.");
-            this.key = Jwts.SIG.HS256.key().build();
-        } else {
-            byte[] bytes = secret.getBytes(StandardCharsets.UTF_8);
-            if (bytes.length < 32) {
-                byte[] padded = new byte[32];
-                System.arraycopy(bytes, 0, padded, 0, bytes.length);
-                bytes = padded;
-            }
-            this.key = Keys.hmacShaKeyFor(bytes);
+            throw new IllegalStateException("JWT_SECRET environment variable is not set or is using the public fallback placeholder. Refusing to start for security reasons.");
         }
+        byte[] bytes = secret.getBytes(StandardCharsets.UTF_8);
+        if (bytes.length < 32) {
+            byte[] padded = new byte[32];
+            System.arraycopy(bytes, 0, padded, 0, bytes.length);
+            bytes = padded;
+        }
+        this.key = Keys.hmacShaKeyFor(bytes);
     }
 
     public String generateToken(UUID id, String email, String role, String table, UUID businessId) {

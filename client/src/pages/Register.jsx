@@ -11,6 +11,10 @@ export default function Register() {
 
   async function handleSubmit(e) {
     e.preventDefault();
+    if (form.password.length < 8) {
+      toast.error('Password must be at least 8 characters long');
+      return;
+    }
     setLoading(true);
     try {
       await register(form);

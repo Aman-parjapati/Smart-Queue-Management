@@ -2,6 +2,7 @@ package com.smartqueue.server.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.time.Instant;
 import java.util.UUID;
 
@@ -24,6 +25,7 @@ public class User {
 
     private String phone;
 
+    @JsonIgnore
     @Column(name = "password_hash", nullable = false)
     private String passwordHash;
 

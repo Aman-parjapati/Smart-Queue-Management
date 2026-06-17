@@ -90,14 +90,4 @@ create index if not exists idx_slots_business   on slots(business_id);
 create index if not exists idx_staff_business   on staff(business_id);
 create index if not exists idx_queue_events_bid on queue_events(booking_id);
 
--- ── SEED: default admin account ──────────────────────────────
--- Password: admin123  (change immediately in production!)
--- Hash generated with bcrypt rounds=10
-insert into business_admins (name, email, phone, password_hash)
-values (
-  'Admin',
-  'admin@smartqueue.com',
-  '9999999999',
-  '$2a$10$7EqJtq98hPqEX7fNZaFWoOa8n1IpTh8YLhL7Ow0xOW6w1A5r8GGSG'
-)
-on conflict (email) do nothing;
+

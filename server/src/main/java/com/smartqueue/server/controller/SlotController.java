@@ -81,7 +81,15 @@ public class SlotController {
                                         @Valid @RequestBody CreateSlotRequest body) {
         // Staff can only create slots for their own business
         if ("staff".equals(principal.getRole()) && !body.getBusiness_id().equals(principal.getBusinessId())) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("error", "Access denied"));
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("error", "Access denied: staff cannot configure other businesses"));
+        }
+
+        // Admin can only create slots for businesses they own
+        if ("admin".equals(principal.getRole())) {
+            Optional<Business> biz = businessRepository.findById(body.getBusiness_id());
+            if (biz.isEmpty() || !biz.get().getOwnerId().equals(principal.getId())) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("error", "Access denied: you do not own this business"));
+            }
         }
 
         if (body.getEntire_month() != null && body.getEntire_month()) {

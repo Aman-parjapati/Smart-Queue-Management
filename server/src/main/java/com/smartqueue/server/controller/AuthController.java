@@ -14,6 +14,7 @@ import com.smartqueue.server.security.UserPrincipal;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import lombok.Data;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -112,6 +113,7 @@ public class AuthController {
         private String email;
         private String phone;
         @NotBlank(message = "password is required")
+        @Size(min = 8, message = "Password must be at least 8 characters long")
         private String password;
     }
 
@@ -141,13 +143,20 @@ public class AuthController {
         private String email;
         private String phone;
         @NotBlank(message = "password is required")
+        @Size(min = 8, message = "Password must be at least 8 characters long")
         private String password;
         private UUID business_id;
     }
 
     // ── CUSTOMER register / login ────────────────────────────────
     @PostMapping("/register")
-    public ResponseEntity<?> register(@Valid @RequestBody RegisterRequest body) {
+    public ResponseEntity<?> register(@Valid @RequestBody RegisterRequest body, jakarta.servlet.http.HttpServletRequest request) {
+        String ip = getClientIp(request);
+        if (isRateLimited(ip)) {
+            return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS)
+                    .body(Map.of("error", "Too many attempts. Please try again in 1 minute."));
+        }
+        recordAttempt(ip);
         if (userRepository.existsByEmail(body.getEmail())) {
             return ResponseEntity.status(HttpStatus.CONFLICT)
                     .body(Map.of("error", "Email already registered"));

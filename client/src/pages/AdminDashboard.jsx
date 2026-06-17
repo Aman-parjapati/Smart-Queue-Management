@@ -474,6 +474,7 @@ function QRScanner() {
   const [scanning, setScanning] = useState(false);
   const [manualId, setManualId] = useState('');
   const [result, setResult]     = useState(null);
+  const fileInputRef            = useRef(null);
 
   async function checkIn(bookingId) {
     try {
@@ -483,6 +484,24 @@ function QRScanner() {
     } catch (err) {
       setResult({ success: false, message: err.response?.data?.error || 'Check-in failed' });
       toast.error('Check-in failed');
+    }
+  }
+
+  async function handleFileUpload(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    setResult(null);
+    const html5QrCode = new Html5Qrcode("qr-file-reader");
+    try {
+      const decodedText = await html5QrCode.scanFile(file, false);
+      await checkIn(decodedText);
+    } catch (err) {
+      console.error("Error scanning file:", err);
+      setResult({ success: false, message: 'Could not decode QR code from the selected image.' });
+      toast.error('QR code decoding failed');
+    } finally {
+      e.target.value = '';
     }
   }
 
@@ -527,16 +546,34 @@ function QRScanner() {
       <div className="flex items-center justify-between mb-4 select-none">
         <h3 className="font-display font-semibold text-lg">QR Check-in</h3>
         {!scanning && (
-          <button 
-            onClick={() => { setScanning(true); setResult(null); }}
-            className="text-xs bg-brand-600/10 hover:bg-brand-600/20 text-brand-400 hover:text-brand-300 px-3 py-1.5 rounded-lg border border-brand-500/20 flex items-center gap-1.5 transition-all font-semibold"
-          >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M6.827 6.175A2.31 2.31 0 015.186 7.23c-.38.054-.757.112-1.134.175C2.999 7.58 2.25 8.507 2.25 9.574V18a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18V9.574c0-1.067-.75-1.994-1.802-2.169a47.865 47.865 0 00-1.134-.175 2.31 2.31 0 01-1.64-1.055l-.822-1.316a2.192 2.192 0 00-1.736-1.039 48.774 48.774 0 00-5.232 0 2.192 2.192 0 00-1.736 1.039l-.821 1.316z" />
-              <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 12.75a4.5 4.5 0 11-9 0 4.5 4.5 0 019 0zM18.75 10.5h.008v.008h-.008V10.5z" />
-            </svg>
-            Scan with Camera
-          </button>
+          <div className="flex gap-2">
+            <button 
+              onClick={() => { setScanning(true); setResult(null); }}
+              className="text-xs bg-brand-600/10 hover:bg-brand-600/20 text-brand-400 hover:text-brand-300 px-3 py-1.5 rounded-lg border border-brand-500/20 flex items-center gap-1.5 transition-all font-semibold"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M6.827 6.175A2.31 2.31 0 015.186 7.23c-.38.054-.757.112-1.134.175C2.999 7.58 2.25 8.507 2.25 9.574V18a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18V9.574c0-1.067-.75-1.994-1.802-2.169a47.865 47.865 0 00-1.134-.175 2.31 2.31 0 01-1.64-1.055l-.822-1.316a2.192 2.192 0 00-1.736-1.039 48.774 48.774 0 00-5.232 0 2.192 2.192 0 00-1.736 1.039l-.821 1.316z" />
+                <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 12.75a4.5 4.5 0 11-9 0 4.5 4.5 0 019 0zM18.75 10.5h.008v.008h-.008V10.5z" />
+              </svg>
+              Scan with Camera
+            </button>
+            <button
+              onClick={() => fileInputRef.current?.click()}
+              className="text-xs bg-slate-100 hover:bg-slate-200 dark:bg-slate-800/80 dark:hover:bg-slate-800 text-slate-650 dark:text-slate-300 px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700/60 flex items-center gap-1.5 transition-all font-semibold"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
+              </svg>
+              Upload QR
+            </button>
+            <input 
+              type="file" 
+              ref={fileInputRef} 
+              onChange={handleFileUpload} 
+              accept="image/*" 
+              className="hidden" 
+            />
+          </div>
         )}
       </div>
 
@@ -573,6 +610,8 @@ function QRScanner() {
           {result.message}
         </div>
       )}
+
+      <div id="qr-file-reader" className="hidden" style={{ display: 'none' }}></div>
     </div>
   );
 }
