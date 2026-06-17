@@ -318,38 +318,6 @@ export default function Layout() {
 
           {user ? (
             <div className="flex flex-col gap-2">
-              <Link
-                to="/"
-                onClick={() => setMobileMenuOpen(false)}
-                className="flex items-center px-3 py-2 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800/60 text-slate-700 dark:text-slate-200 text-sm font-semibold transition-all"
-              >
-                Home
-              </Link>
-              <Link
-                to="/directory"
-                onClick={() => setMobileMenuOpen(false)}
-                className="flex items-center px-3 py-2 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800/60 text-slate-700 dark:text-slate-200 text-sm font-semibold transition-all"
-              >
-                Businesses Directory
-              </Link>
-              {user.role === 'customer' && (
-                <Link
-                  to="/bookings"
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="flex items-center px-3 py-2 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800/60 text-slate-700 dark:text-slate-200 text-sm font-semibold transition-all"
-                >
-                  My Bookings
-                </Link>
-              )}
-              {(user.role === 'admin' || user.role === 'staff') && (
-                <Link
-                  to="/admin"
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="flex items-center px-3 py-2 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800/60 text-slate-700 dark:text-slate-200 text-sm font-semibold transition-all"
-                >
-                  Dashboard
-                </Link>
-              )}
               <button
                 onClick={() => {
                   setShowProfileModal(true);
@@ -369,14 +337,6 @@ export default function Layout() {
             </div>
           ) : (
             <div className="flex flex-col gap-2">
-              <Link
-                to="/directory"
-                onClick={() => setMobileMenuOpen(false)}
-                className="flex items-center px-3 py-2 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800/60 text-slate-700 dark:text-slate-200 text-sm font-semibold transition-all"
-              >
-                Businesses Directory
-              </Link>
-              
               <div className="flex items-center justify-between px-3 py-2 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800/60 transition-all">
                 <span className="text-slate-750 dark:text-slate-250 text-sm font-semibold flex items-center">
                   {darkMode ? 'Dark Mode' : 'Light Mode'}
@@ -393,6 +353,7 @@ export default function Layout() {
               </Link>
             </div>
           )}
+
         </div>
 
         {/* Bottom Actions Container */}
