@@ -193,7 +193,8 @@ export default function ProfileModal({ isOpen, onClose }) {
                   <div className="bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-3 select-none mb-2">
                     <p className="text-xs text-slate-500 dark:text-slate-400">Account Role</p>
                     <p className="text-sm font-semibold text-slate-800 dark:text-slate-200 capitalize mt-0.5">{user.role}</p>
-                    <p className="text-xs text-slate-400 dark:text-slate-500 mt-1">Email (cannot be changed): {user.email}</p>
+                    <p className="text-xs text-slate-400 dark:text-slate-500 mt-1.5">Name (cannot be changed): {user.name}</p>
+                    <p className="text-xs text-slate-400 dark:text-slate-500 mt-0.5">Email (cannot be changed): {user.email}</p>
                   </div>
 
                   <div>
