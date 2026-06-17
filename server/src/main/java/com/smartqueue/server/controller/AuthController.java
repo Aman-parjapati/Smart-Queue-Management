@@ -29,6 +29,55 @@ import java.util.*;
 @RequestMapping("/api/auth")
 public class AuthController {
 
+    private static class RateLimitData {
+        int attempts;
+        long lastAttemptTime;
+        
+        RateLimitData() {
+            this.attempts = 1;
+            this.lastAttemptTime = System.currentTimeMillis();
+        }
+    }
+
+    private final Map<String, RateLimitData> rateLimitMap = new java.util.concurrent.ConcurrentHashMap<>();
+    private static final int MAX_ATTEMPTS = 5;
+    private static final long BLOCK_DURATION_MS = 60000; // 1 minute
+
+    private boolean isRateLimited(String ip) {
+        long now = System.currentTimeMillis();
+        RateLimitData data = rateLimitMap.get(ip);
+        if (data == null) {
+            return false;
+        }
+        if (now - data.lastAttemptTime > BLOCK_DURATION_MS) {
+            rateLimitMap.remove(ip);
+            return false;
+        }
+        return data.attempts >= MAX_ATTEMPTS;
+    }
+
+    private void recordAttempt(String ip) {
+        long now = System.currentTimeMillis();
+        rateLimitMap.compute(ip, (key, val) -> {
+            if (val == null || (now - val.lastAttemptTime > BLOCK_DURATION_MS)) {
+                return new RateLimitData();
+            }
+            val.attempts++;
+            val.lastAttemptTime = now;
+            return val;
+        });
+    }
+
+    private String getClientIp(jakarta.servlet.http.HttpServletRequest request) {
+        String ip = request.getHeader("X-Forwarded-For");
+        if (ip == null || ip.isEmpty() || "unknown".equalsIgnoreCase(ip)) {
+            ip = request.getRemoteAddr();
+        } else {
+            ip = ip.split(",")[0].trim();
+        }
+        return ip;
+    }
+
     private final UserRepository userRepository;
     private final BusinessAdminRepository businessAdminRepository;
     private final StaffRepository staffRepository;
@@ -129,7 +178,14 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> loginCustomer(@Valid @RequestBody LoginRequest body) {
+    public ResponseEntity<?> loginCustomer(@Valid @RequestBody LoginRequest body, jakarta.servlet.http.HttpServletRequest request) {
+        String ip = getClientIp(request);
+        if (isRateLimited(ip)) {
+            return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS)
+                    .body(Map.of("error", "Too many login attempts. Please try again in 1 minute."));
+        }
+        recordAttempt(ip);
+
         Optional<User> userOpt = userRepository.findByEmail(body.getEmail());
         if (userOpt.isEmpty() || !passwordEncoder.matches(body.getPassword(), userOpt.get().getPasswordHash())) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
@@ -154,7 +210,14 @@ public class AuthController {
 
     // ── ADMIN login ──────────────────────────────────────────────
     @PostMapping("/login/admin")
-    public ResponseEntity<?> loginAdmin(@Valid @RequestBody LoginRequest body) {
+    public ResponseEntity<?> loginAdmin(@Valid @RequestBody LoginRequest body, jakarta.servlet.http.HttpServletRequest request) {
+        String ip = getClientIp(request);
+        if (isRateLimited(ip)) {
+            return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS)
+                    .body(Map.of("error", "Too many login attempts. Please try again in 1 minute."));
+        }
+        recordAttempt(ip);
+
         Optional<BusinessAdmin> adminOpt = businessAdminRepository.findByEmail(body.getEmail());
         if (adminOpt.isEmpty() || !passwordEncoder.matches(body.getPassword(), adminOpt.get().getPasswordHash())) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
@@ -179,7 +242,14 @@ public class AuthController {
 
     // ── STAFF login ──────────────────────────────────────────────
     @PostMapping("/login/staff")
-    public ResponseEntity<?> loginStaff(@Valid @RequestBody LoginRequest body) {
+    public ResponseEntity<?> loginStaff(@Valid @RequestBody LoginRequest body, jakarta.servlet.http.HttpServletRequest request) {
+        String ip = getClientIp(request);
+        if (isRateLimited(ip)) {
+            return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS)
+                    .body(Map.of("error", "Too many login attempts. Please try again in 1 minute."));
+        }
+        recordAttempt(ip);
+
         Optional<Staff> staffOpt = staffRepository.findByEmail(body.getEmail());
         if (staffOpt.isEmpty() || !passwordEncoder.matches(body.getPassword(), staffOpt.get().getPasswordHash())) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)

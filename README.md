@@ -119,6 +119,44 @@ Customers can view their booking token and download receipt information on deman
 
 ---
 
+## Visual Walkthrough & Screenshots
+
+### 1. Landing & Authentication
+*   **Landing Page**: The entry page featuring clean glassmorphism UI elements, dark mode toggles, and direct links to check directory.
+    ![Landing Page](screenshots/landing_page.png)
+*   **Registration Portal**: Smooth animated sign-up portal for new customers.
+    ![Customer Registration](screenshots/customer_register.png)
+
+### 2. Customer Queueing Experience
+*   **Business Directory**: Interactive board displaying all registered branches and categories (salons, clinics, banks).
+    ![Business Directory](screenshots/customer_directory.png)
+*   **Slot Booking**: Customers choose slots for specific dates. The UI shows an occupancy progress indicator bar.
+    ![Booking Slots](screenshots/booking_slots.png)
+*   **Live Token Details**: After booking, customers receive their digital token receipt featuring an auto-generated check-in QR code, real-time live position tracking (using SSE), and canvas ticket downloading capabilities.
+    ![Live Token Tracking](screenshots/customer_token.png)
+*   **My Bookings**: Customer personal list showing current active and historical slots.
+    ![My Bookings](screenshots/my_bookings.png)
+
+### 3. Admin Management Panel
+*   **Staff and Admin Login**: Portal interface permitting staff and admin authentication.
+    ![Admin Login](screenshots/admin_login.png)
+*   **Admin Dashboard**: Overview of operations where business admins configure branches, schedules, and view queue statuses.
+    ![Admin Dashboard](screenshots/admin_dashboard.png)
+*   **Staff Roster Management**: Interface for business owners to enroll and assign staff members to branches.
+    ![Staff Roster Management](screenshots/admin_staff_management.png)
+
+### 4. Staff Queue Operations
+*   **Staff Dashboard**: Dashboard where branch staff call next tickets and manage the active queue live.
+    ![Staff Dashboard](screenshots/staff_dashboard.png)
+*   **Active Ticket Service**: Showing detail of the customer currently called, with quick check-in, serve, skipped, or done triggers.
+    ![Serving Called Token](screenshots/staff_calling_token.png)
+
+### 5. Live Queue TV Board
+*   **Public Display TV Board**: Fullscreen Queue Board intended for public TV displays in waiting rooms, updating in real-time via SSE.
+    ![Live Queue Board](screenshots/live_queue_board.png)
+
+---
+
 ## Real-Time SSE Flow
 
 ```

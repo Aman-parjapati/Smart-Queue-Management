@@ -32,6 +32,16 @@ public class DatabaseInitializer implements CommandLineRunner {
         this.passwordEncoder = passwordEncoder;
     }
 
+    private String generateRandomPassword() {
+        String chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+        StringBuilder sb = new StringBuilder();
+        java.security.SecureRandom random = new java.security.SecureRandom();
+        for (int i = 0; i < 12; i++) {
+            sb.append(chars.charAt(random.nextInt(chars.length())));
+        }
+        return sb.toString();
+    }
+
     @Override
     @Transactional
     public void run(String... args) throws Exception {
@@ -43,9 +53,35 @@ public class DatabaseInitializer implements CommandLineRunner {
 
         System.out.println("Initializing database with default demo data...");
 
+        String defaultAdminPass = System.getenv("DEFAULT_ADMIN_PASSWORD");
+        String defaultStaffPass = System.getenv("DEFAULT_STAFF_PASSWORD");
+        
+        boolean generatedAdminPass = false;
+        boolean generatedStaffPass = false;
+        
+        if (defaultAdminPass == null || defaultAdminPass.trim().isEmpty()) {
+            defaultAdminPass = generateRandomPassword();
+            generatedAdminPass = true;
+        }
+        if (defaultStaffPass == null || defaultStaffPass.trim().isEmpty()) {
+            defaultStaffPass = generateRandomPassword();
+            generatedStaffPass = true;
+        }
+
         // Encrypt default passwords
-        String adminPasswordHash = passwordEncoder.encode("admin123");
-        String staffPasswordHash = passwordEncoder.encode("staff123");
+        String adminPasswordHash = passwordEncoder.encode(defaultAdminPass);
+        String staffPasswordHash = passwordEncoder.encode(defaultStaffPass);
+
+        if (generatedAdminPass) {
+            System.out.println("==================================================");
+            System.out.println("DEFAULT ADMIN PASSWORD SEEDED: " + defaultAdminPass);
+            System.out.println("==================================================");
+        }
+        if (generatedStaffPass) {
+            System.out.println("==================================================");
+            System.out.println("DEFAULT STAFF PASSWORD SEEDED: " + defaultStaffPass);
+            System.out.println("==================================================");
+        }
 
         // 1. Create Admins
         BusinessAdmin admin1 = BusinessAdmin.builder()

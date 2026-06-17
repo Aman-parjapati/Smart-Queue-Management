@@ -118,6 +118,25 @@ public class QueueController {
                                       @Valid @RequestBody CallNextRequest body) {
         UUID slotId = body.getSlotId();
 
+        Optional<Slot> slotOpt = slotRepository.findById(slotId);
+        if (slotOpt.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", "Slot not found"));
+        }
+        Slot slot = slotOpt.get();
+
+        // Enforce ownership checks
+        if ("staff".equals(principal.getRole())) {
+            if (principal.getBusinessId() == null || !principal.getBusinessId().equals(slot.getBusinessId())) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                        .body(Map.of("error", "Access denied: this slot does not belong to your business"));
+            }
+        } else if ("admin".equals(principal.getRole())) {
+            if (slot.getBusiness() == null || !principal.getId().equals(slot.getBusiness().getOwnerId())) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                        .body(Map.of("error", "Access denied: this slot does not belong to your business"));
+            }
+        }
+
         // Fetch current serving booking and mark as done
         List<Booking> bookings = bookingRepository.findBySlotIdOrderByTokenNumberAsc(slotId);
         for (Booking b : bookings) {
@@ -162,9 +181,8 @@ public class QueueController {
             Booking twoAway = twoAwayOpt.get();
             Optional<User> userOpt = userRepository.findById(twoAway.getUserId());
             if (userOpt.isPresent() && userOpt.get().getPhone() != null && !userOpt.get().getPhone().isBlank()) {
-                Optional<Slot> slotOpt = slotRepository.findById(slotId);
-                String businessName = slotOpt.isPresent() && slotOpt.get().getBusiness() != null ?
-                        slotOpt.get().getBusiness().getName() : "the service";
+                String businessName = slot.getBusiness() != null ?
+                        slot.getBusiness().getName() : "the service";
                 twilioService.notifyTurnNear(userOpt.get().getPhone(), twoAway.getTokenNumber(), businessName);
             }
         }
@@ -173,10 +191,7 @@ public class QueueController {
         List<Booking> updatedQueue = queueService.getQueueState(slotId);
 
         // Broadcast update
-        Optional<Slot> slotOpt = slotRepository.findById(slotId);
-        if (slotOpt.isPresent()) {
-            sseService.broadcastQueue(slotOpt.get().getBusinessId(), slotId, Map.of("slotId", slotId, "queue", updatedQueue));
-        }
+        sseService.broadcastQueue(slot.getBusinessId(), slotId, Map.of("slotId", slotId, "queue", updatedQueue));
 
         return ResponseEntity.ok(Map.of("success", true, "serving", next, "queue", updatedQueue));
     }
@@ -190,12 +205,34 @@ public class QueueController {
         UUID bookingId = body.getBookingId();
         UUID slotId = body.getSlotId();
 
+        Optional<Slot> slotOpt = slotRepository.findById(slotId);
+        if (slotOpt.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", "Slot not found"));
+        }
+        Slot slot = slotOpt.get();
+
+        // Enforce ownership checks
+        if ("staff".equals(principal.getRole())) {
+            if (principal.getBusinessId() == null || !principal.getBusinessId().equals(slot.getBusinessId())) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                        .body(Map.of("error", "Access denied: this slot does not belong to your business"));
+            }
+        } else if ("admin".equals(principal.getRole())) {
+            if (slot.getBusiness() == null || !principal.getId().equals(slot.getBusiness().getOwnerId())) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                        .body(Map.of("error", "Access denied: this slot does not belong to your business"));
+            }
+        }
+
         Optional<Booking> bookingOpt = bookingRepository.findById(bookingId);
         if (bookingOpt.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", "Booking not found"));
         }
 
         Booking booking = bookingOpt.get();
+        if (!booking.getSlotId().equals(slotId)) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("error", "Booking does not belong to the specified slot"));
+        }
         booking.setStatus("skipped");
         booking = bookingRepository.save(booking);
 
@@ -208,10 +245,7 @@ public class QueueController {
         queueService.invalidateCache(slotId);
         List<Booking> queue = queueService.getQueueState(slotId);
 
-        Optional<Slot> slotOpt = slotRepository.findById(slotId);
-        if (slotOpt.isPresent()) {
-            sseService.broadcastQueue(slotOpt.get().getBusinessId(), slotId, Map.of("slotId", slotId, "queue", queue));
-        }
+        sseService.broadcastQueue(slot.getBusinessId(), slotId, Map.of("slotId", slotId, "queue", queue));
 
         return ResponseEntity.ok(Map.of("success", true, "booking", booking, "queue", queue));
     }
@@ -225,6 +259,25 @@ public class QueueController {
         UUID bookingId = body.getBookingId();
         UUID slotId = body.getSlotId();
 
+        Optional<Slot> slotOpt = slotRepository.findById(slotId);
+        if (slotOpt.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", "Slot not found"));
+        }
+        Slot slot = slotOpt.get();
+
+        // Enforce ownership checks
+        if ("staff".equals(principal.getRole())) {
+            if (principal.getBusinessId() == null || !principal.getBusinessId().equals(slot.getBusinessId())) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                        .body(Map.of("error", "Access denied: this slot does not belong to your business"));
+            }
+        } else if ("admin".equals(principal.getRole())) {
+            if (slot.getBusiness() == null || !principal.getId().equals(slot.getBusiness().getOwnerId())) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                        .body(Map.of("error", "Access denied: this slot does not belong to your business"));
+            }
+        }
+
         Optional<Booking> bookingOpt = bookingRepository.findById(bookingId);
         if (bookingOpt.isEmpty() || !"serving".equals(bookingOpt.get().getStatus())) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
@@ -232,6 +285,9 @@ public class QueueController {
         }
 
         Booking booking = bookingOpt.get();
+        if (!booking.getSlotId().equals(slotId)) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("error", "Booking does not belong to the specified slot"));
+        }
         booking.setStatus("done");
         booking = bookingRepository.save(booking);
 
@@ -244,10 +300,7 @@ public class QueueController {
         queueService.invalidateCache(slotId);
         List<Booking> queue = queueService.getQueueState(slotId);
 
-        Optional<Slot> slotOpt = slotRepository.findById(slotId);
-        if (slotOpt.isPresent()) {
-            sseService.broadcastQueue(slotOpt.get().getBusinessId(), slotId, Map.of("slotId", slotId, "queue", queue));
-        }
+        sseService.broadcastQueue(slot.getBusinessId(), slotId, Map.of("slotId", slotId, "queue", queue));
 
         return ResponseEntity.ok(Map.of("success", true, "booking", booking, "queue", queue));
     }
