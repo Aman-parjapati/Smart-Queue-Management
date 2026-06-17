@@ -1064,26 +1064,29 @@ export default function AdminDashboard() {
         ))}
       </div>
 
-      {tab === 'queue'     && (
-        <QueueControl
-          slotId={activeSlot?.id}
-          queue={queue}
-          slots={slots}
-          activeSlot={activeSlot}
-          setActiveSlot={setActiveSlot}
-        />
-      )}
-      {tab === 'analytics' && <AnalyticsPanel businessId={activeBiz?.id} />}
-      {tab === 'slots'     && (
-        <SlotsManager
-          businessId={activeBiz?.id}
-          slots={slots}
-          onRefresh={refreshSlots}
-        />
-      )}
+      {/* Tab Content with smooth transition */}
+      <div key={tab} className="admin-tab-enter">
+        {tab === 'queue'     && (
+          <QueueControl
+            slotId={activeSlot?.id}
+            queue={queue}
+            slots={slots}
+            activeSlot={activeSlot}
+            setActiveSlot={setActiveSlot}
+          />
+        )}
+        {tab === 'analytics' && <AnalyticsPanel businessId={activeBiz?.id} />}
+        {tab === 'slots'     && (
+          <SlotsManager
+            businessId={activeBiz?.id}
+            slots={slots}
+            onRefresh={refreshSlots}
+          />
+        )}
 
-      {tab === 'checkin'   && <QRScanner />}
-      {tab === 'staff'     && isAdmin && <StaffManager businessId={activeBiz?.id} />}
+        {tab === 'checkin'   && <QRScanner />}
+        {tab === 'staff'     && isAdmin && <StaffManager businessId={activeBiz?.id} />}
+      </div>
     </div>
   );
 }
