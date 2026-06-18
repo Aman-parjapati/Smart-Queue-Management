@@ -1,7 +1,7 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 
-export default defineConfig({
+export default defineConfig(({ mode }) => ({
   plugins: [react()],
   esbuild: {
     supported: {
@@ -25,7 +25,9 @@ export default defineConfig({
     },
   },
   build: {
-    outDir: '../server/src/main/resources/static',
+    // For local dev: build into Spring Boot static folder
+    // For Vercel: build into dist/ (set via VITE_BUILD_TARGET=vercel)
+    outDir: process.env.VITE_BUILD_TARGET === 'vercel' ? 'dist' : '../server/src/main/resources/static',
     emptyOutDir: true,
     rollupOptions: {
       output: {
@@ -43,4 +45,4 @@ export default defineConfig({
       }
     }
   }
-});
+}));

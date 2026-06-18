@@ -176,12 +176,11 @@ export default function Layout() {
       </div>
 
       {/* Nav */}
-      <header className="sticky top-0 z-50 border-b border-surface-200 dark:border-surface-700/80 bg-surface-50/80 dark:bg-surface-950/80 backdrop-blur-md relative">
+      <header className="fixed top-0 left-0 right-0 z-50 border-b border-surface-200 dark:border-surface-700/80 bg-surface-50 dark:bg-surface-950">
 
         <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
-          <Link to="/" className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-brand-500 rounded-lg flex items-center justify-center text-white font-bold text-sm">SQ</div>
-            <span className="font-display font-bold text-lg tracking-tight text-slate-900 dark:text-white hidden sm:block">SmartQueue</span>
+          <Link to="/" className="flex items-center">
+            <img src="/logo.png" alt="Smart Queue Management" className="h-14 w-auto dark:invert dark:brightness-200" />
           </Link>
 
           {/* Nav links in center for marketing feel */}
@@ -289,6 +288,9 @@ export default function Layout() {
         </div>
       </header>
 
+      {/* Spacer for fixed header */}
+      <div className="h-16" />
+
       {/* Mobile Menu Backdrop */}
       <div
         onClick={() => setMobileMenuOpen(false)}
@@ -301,9 +303,8 @@ export default function Layout() {
         <div>
           {/* Drawer Header */}
           <div className="flex items-center justify-between pb-4 mb-4 border-b border-slate-100 dark:border-slate-800">
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 bg-brand-400 rounded-lg flex items-center justify-center text-surface-900 font-bold text-sm">SQ</div>
-              <span className="font-display font-bold text-base text-slate-900 dark:text-white">SmartQueue</span>
+            <div className="flex items-center">
+              <img src="/logo.png" alt="Smart Queue Management" className="h-9 w-auto dark:invert dark:brightness-200" />
             </div>
             <button
               onClick={() => setMobileMenuOpen(false)}
