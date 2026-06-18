@@ -53,7 +53,7 @@ export default function Home() {
             scrollRef.current.scrollBy({ left: 380, behavior: 'smooth' });
           }
         }
-      }, 10000); // 10 seconds
+      }, 2000); // 2 seconds
 
       return () => clearInterval(interval);
     }
