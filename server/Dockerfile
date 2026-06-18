@@ -4,13 +4,11 @@ WORKDIR /app
 
 # Cache dependencies
 COPY pom.xml .
-COPY .mvn .mvn
-COPY mvnw .
-RUN chmod +x mvnw && ./mvnw dependency:go-offline -B
+RUN mvn dependency:go-offline -B
 
 # Build the application
 COPY src src
-RUN ./mvnw package -DskipTests -B
+RUN mvn package -DskipTests -B
 
 # ── Stage 2: Run ──────────────────────────────────────────
 FROM eclipse-temurin:17-jre-alpine
